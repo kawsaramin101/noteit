@@ -11,7 +11,7 @@ void main() async {
 
   runApp(MaterialApp(
     routes: {
-      "/": (context) => Home(),
+      "/": (context) => const Home(),
 
       // "/settings": (context) => ChooseLocation(),
     },

@@ -72,29 +72,40 @@ class _NoteCardState extends State<NoteCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            widget.togglePinnedStatus(widget.note.key);
-                          },
-                          icon: const Icon(
-                            Icons.push_pin_outlined,
-                            color: Colors.white,
+                        Tooltip(
+                          message: widget.note.pinned ? "Unpin" : "Pin",
+                          child: IconButton(
+                            onPressed: () {
+                              widget.togglePinnedStatus(widget.note.key);
+                            },
+                            icon: Icon(
+                              (widget.note.pinned
+                                  ? Icons.push_pin
+                                  : Icons.push_pin_outlined),
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.edit,
-                            color: Colors.white,
+                        Tooltip(
+                          message: "Edit",
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            widget.deleteNote(widget.note.key);
-                          },
-                          icon: const Icon(
-                            Icons.delete_outline_outlined,
-                            color: Colors.white,
+                        Tooltip(
+                          message: "Delete",
+                          child: IconButton(
+                            onPressed: () {
+                              widget.deleteNote(widget.note.key);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
