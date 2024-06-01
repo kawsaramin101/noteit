@@ -91,7 +91,7 @@ class _NoteCardState extends State<NoteCard> {
                           child: IconButton(
                             onPressed: () {},
                             icon: const Icon(
-                              Icons.edit,
+                              Icons.edit_outlined,
                               color: Colors.white,
                             ),
                           ),
