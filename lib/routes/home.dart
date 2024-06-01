@@ -29,6 +29,24 @@ class _HomeState extends State<Home> {
     noteBox.delete(key);
   }
 
+  void togglePinnedStatus(int key) {
+    final note = noteBox.get(key);
+    debugPrint("$key");
+    if (note != null) {
+      noteBox.put(
+        key,
+        Note(
+          title: note.title,
+          content: note.content,
+          createdAt: note.createdAt,
+          order: note.order,
+          pinned: !note.pinned,
+          parent: note.parent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,11 +148,14 @@ class _HomeState extends State<Home> {
                       children: [
                         if (pinnedNotes.isNotEmpty) ...[
                           const Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
                             child: Text(
                               'Pinned Notes',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           MasonryView(
@@ -144,6 +165,7 @@ class _HomeState extends State<Home> {
                               return NoteCard(
                                 note: item,
                                 deleteNote: _deleteNote,
+                                togglePinnedStatus: togglePinnedStatus,
                               );
                             },
                           ),
@@ -154,9 +176,10 @@ class _HomeState extends State<Home> {
                             child: Text(
                               'All Notes',
                               style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           MasonryView(
@@ -166,6 +189,7 @@ class _HomeState extends State<Home> {
                               return NoteCard(
                                 note: item,
                                 deleteNote: _deleteNote,
+                                togglePinnedStatus: togglePinnedStatus,
                               );
                             },
                           ),

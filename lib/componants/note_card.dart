@@ -4,11 +4,13 @@ import 'package:notes/data/note.dart';
 class NoteCard extends StatefulWidget {
   final Note note;
   final Function deleteNote;
+  final Function togglePinnedStatus;
 
   const NoteCard({
     super.key,
     required this.note,
     required this.deleteNote,
+    required this.togglePinnedStatus,
   });
 
   @override
@@ -71,7 +73,9 @@ class _NoteCardState extends State<NoteCard> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            widget.togglePinnedStatus(widget.note.key);
+                          },
                           icon: const Icon(
                             Icons.push_pin_outlined,
                             color: Colors.white,
