@@ -24,6 +24,11 @@ class _HomeState extends State<Home> {
     _contentController.clear();
   }
 
+  void _deleteNote(int key) {
+    // TODO: show a pop up using AlertDialog widget for confirmation
+    noteBox.delete(key);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,6 +120,9 @@ class _HomeState extends State<Home> {
                   }
                 }
 
+                pinnedNotes.sort((a, b) => b.order.compareTo(a.order));
+                unpinnedNotes.sort((a, b) => b.order.compareTo(a.order));
+
                 return Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -133,7 +141,10 @@ class _HomeState extends State<Home> {
                             listOfItem: pinnedNotes,
                             numberOfColumn: 3,
                             itemBuilder: (item) {
-                              return NoteCard(text: item.content);
+                              return NoteCard(
+                                note: item,
+                                deleteNote: _deleteNote,
+                              );
                             },
                           ),
                         ],
@@ -152,7 +163,10 @@ class _HomeState extends State<Home> {
                             listOfItem: unpinnedNotes,
                             numberOfColumn: 3,
                             itemBuilder: (item) {
-                              return NoteCard(text: item.content);
+                              return NoteCard(
+                                note: item,
+                                deleteNote: _deleteNote,
+                              );
                             },
                           ),
                         ],

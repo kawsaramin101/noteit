@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:notes/data/note.dart';
 
 class NoteCard extends StatefulWidget {
-  final String text;
+  final Note note;
+  final Function deleteNote;
 
   const NoteCard({
     super.key,
-    required this.text,
+    required this.note,
+    required this.deleteNote,
   });
 
   @override
@@ -35,61 +38,67 @@ class _NoteCardState extends State<NoteCard> {
             minHeight: 100.0,
             maxHeight: 300.0,
           ),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: const EdgeInsets.all(16.0),
-                        width: double.infinity,
-                        child: SelectableText(
-                          widget.text,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            // fontWeight: FontWeight.normal,
+          child: IntrinsicHeight(
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    // Ensure the Container respects the minimum height
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Container(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 16.0),
+                          width: double.infinity,
+                          child: SelectableText(
+                            "${widget.note.content}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Visibility(
-                  visible: _isHovered,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.push_pin_outlined,
-                          color: Colors.white,
+                  ],
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Visibility(
+                    visible: _isHovered,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.push_pin_outlined,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.delete_outline_outlined,
-                          color: Colors.white,
+                        IconButton(
+                          onPressed: () {
+                            widget.deleteNote(widget.note.key);
+                          },
+                          icon: const Icon(
+                            Icons.delete_outline_outlined,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
