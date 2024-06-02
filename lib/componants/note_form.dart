@@ -65,17 +65,17 @@ class _NoteFormState extends State<NoteForm> {
             minLines: 5,
             expands: false,
             keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              enabledBorder: OutlineInputBorder(
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.white),
               ),
               hintText: 'What\'s on your mind?',
               hintStyle: TextStyle(
-                color: Colors.white,
+                color: Colors.grey[500],
                 fontWeight: FontWeight.w300,
               ),
             ),

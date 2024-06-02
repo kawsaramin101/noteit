@@ -3,19 +3,25 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import "package:notes/routes/home.dart";
 import 'package:notes/data/note.dart';
-import 'package:notes/routes/test.dart';
 
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(NoteAdapter());
   await Hive.openBox<Note>('notes');
 
+  // TODO: add a top search bar
+  // TODO: add a confirmation dialog to delete a note
+  // TODO: add settings page
+  //       -light mode/dark mode/system
+  //       -title field
+  //       -pinned notes?
+  //       -
+
   runApp(MaterialApp(
     routes: {
       "/": (context) => const Home(),
-      "/home": (context) => const Test(),
 
-      // "/settings": (context) => ChooseLocation(),
+      // "/settings": (context) => Settings(),
     },
   ));
 }

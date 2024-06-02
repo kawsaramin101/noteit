@@ -18,7 +18,7 @@ class _NoteListState extends State<NoteList> {
 
   void _deleteNote(int key) {
     // TODO: show a pop up using AlertDialog widget for confirmation
-    noteBox.delete(key);
+    showDeleteConfirmationialog(context, key);
   }
 
   void togglePinnedStatus(int key) {
@@ -36,6 +36,61 @@ class _NoteListState extends State<NoteList> {
         ),
       );
     }
+  }
+
+  Future<void> showDeleteConfirmationialog(
+    BuildContext context,
+    int noteKey,
+  ) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 32.0),
+          backgroundColor: Colors.grey[800],
+          content: const Text(
+            "Are you sure you want to delete this note?",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                noteBox.delete(noteKey);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
