@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import "package:notes/routes/home.dart";
 import 'package:notes/data/note.dart';
+import 'package:notes/routes/test.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -12,6 +13,7 @@ void main() async {
   runApp(MaterialApp(
     routes: {
       "/": (context) => const Home(),
+      "/home": (context) => const Test(),
 
       // "/settings": (context) => ChooseLocation(),
     },

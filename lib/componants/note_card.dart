@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes/data/note.dart';
+import 'package:notes/componants/note_form.dart';
 
 class NoteCard extends StatefulWidget {
   final Note note;
@@ -19,6 +20,55 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
+
+  Future<void> showEditDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button to dismiss the dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[800],
+          content: NoteForm(note: widget.note),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:
+                    Colors.blue, // Bright color for button background
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 15.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:
+                    Colors.blue, // Bright color for button background
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 15.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              onPressed: () {},
+              child: const Text(
+                "Save",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +139,9 @@ class _NoteCardState extends State<NoteCard> {
                         Tooltip(
                           message: "Edit",
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showEditDialog(context);
+                            },
                             icon: const Icon(
                               Icons.edit_outlined,
                               color: Colors.white,
