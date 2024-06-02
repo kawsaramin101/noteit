@@ -10,7 +10,6 @@ void main() async {
   await Hive.openBox<Note>('notes');
 
   // TODO: add a top search bar
-  // TODO: add a confirmation dialog to delete a note
   // TODO: add settings page
   //       -light mode/dark mode/system
   //       -title field

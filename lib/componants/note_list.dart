@@ -17,7 +17,6 @@ class _NoteListState extends State<NoteList> {
   final Box<Note> noteBox = Hive.box<Note>('notes');
 
   void _deleteNote(int key) {
-    // TODO: show a pop up using AlertDialog widget for confirmation
     showDeleteConfirmationialog(context, key);
   }
 
