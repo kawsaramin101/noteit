@@ -28,12 +28,13 @@ class _NoteCardState extends State<NoteCard> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.grey[800],
-          content: NoteForm(note: widget.note),
+          content: SizedBox(
+            height: 230,
+            child: NoteForm(note: widget.note),
+          ),
           actions: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
-                backgroundColor:
-                    Colors.blue, // Bright color for button background
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20.0, vertical: 15.0),
                 shape: RoundedRectangleBorder(
@@ -47,22 +48,6 @@ class _NoteCardState extends State<NoteCard> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor:
-                    Colors.blue, // Bright color for button background
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 15.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-              ),
-              onPressed: () {},
-              child: const Text(
-                "Save",
-                style: TextStyle(color: Colors.white),
-              ),
             ),
           ],
         );

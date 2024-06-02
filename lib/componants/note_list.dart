@@ -23,7 +23,6 @@ class _NoteListState extends State<NoteList> {
 
   void togglePinnedStatus(int key) {
     final note = noteBox.get(key);
-    debugPrint("$key");
     if (note != null) {
       noteBox.put(
         key,
@@ -55,16 +54,18 @@ class _NoteListState extends State<NoteList> {
             ),
           );
         } else {
-          final pinnedNotes = <Note>[];
-          final unpinnedNotes = <Note>[];
+          final pinnedNotes =
+              box.values.where((item) => item.pinned == true).toList();
+          final unpinnedNotes =
+              box.values.where((item) => item.pinned == false).toList();
 
-          for (var note in box.values) {
-            if (note.pinned) {
-              pinnedNotes.add(note);
-            } else {
-              unpinnedNotes.add(note);
-            }
-          }
+          // for (var note in box.values) {
+          //   if (note.pinned) {
+          //   //  pinnedNotes.add(note);
+          //   } else {
+          //     unpinnedNotes.add(note);
+          //   }
+          // }
 
           pinnedNotes.sort((a, b) => b.order.compareTo(a.order));
           unpinnedNotes.sort((a, b) => b.order.compareTo(a.order));

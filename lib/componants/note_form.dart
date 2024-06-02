@@ -5,8 +5,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class NoteForm extends StatefulWidget {
   final Note? note;
+  final BuildContext? dialogContext;
 
-  const NoteForm({super.key, this.note});
+  const NoteForm({super.key, this.note, this.dialogContext});
 
   @override
   State<NoteForm> createState() => _NoteFormState();
@@ -14,13 +15,39 @@ class NoteForm extends StatefulWidget {
 
 class _NoteFormState extends State<NoteForm> {
   final Box<Note> noteBox = Hive.box<Note>('notes');
-  final TextEditingController _contentController = TextEditingController();
+  TextEditingController? _contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    _contentController =
+        TextEditingController(text: widget.note?.content ?? "");
+  }
 
   void _addNote() {
-    addNote(
-      content: _contentController.text,
-    );
-    _contentController.clear();
+    if (widget.note == null) {
+      addNote(
+        content: _contentController?.text,
+      );
+    } else {
+      final note = noteBox.get(widget.note?.key);
+      if (note != null) {
+        noteBox.put(
+          widget.note?.key,
+          Note(
+            title: note.title,
+            content: _contentController?.text,
+            createdAt: note.createdAt,
+            order: note.order,
+            pinned: note.pinned,
+            parent: note.parent,
+          ),
+        );
+      }
+      Navigator.of(context).pop();
+    }
+
+    _contentController?.clear();
   }
 
   @override
@@ -74,7 +101,7 @@ class _NoteFormState extends State<NoteForm> {
               ),
             ),
             child: Text(
-              widget.note != null ? "Add" : "Edit",
+              widget.note == null ? "Add" : "Save",
               style: const TextStyle(color: Colors.white),
             ),
           ),
