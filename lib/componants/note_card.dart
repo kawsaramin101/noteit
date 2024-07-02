@@ -43,7 +43,6 @@ class _NoteCardState extends State<NoteCard> {
               ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -58,7 +57,7 @@ class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[850],
+      color: Colors.grey[900],
       child: MouseRegion(
         onEnter: (_) {
           setState(() {
@@ -90,7 +89,6 @@ class _NoteCardState extends State<NoteCard> {
                           child: SelectableText(
                             "${widget.note.content}",
                             style: const TextStyle(
-                              color: Colors.white,
                               fontWeight: FontWeight.w300,
                             ),
                           ),

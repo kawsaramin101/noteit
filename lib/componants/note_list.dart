@@ -113,14 +113,6 @@ class _NoteListState extends State<NoteList> {
           final unpinnedNotes =
               box.values.where((item) => item.pinned == false).toList();
 
-          // for (var note in box.values) {
-          //   if (note.pinned) {
-          //   //  pinnedNotes.add(note);
-          //   } else {
-          //     unpinnedNotes.add(note);
-          //   }
-          // }
-
           pinnedNotes.sort((a, b) => b.order.compareTo(a.order));
           unpinnedNotes.sort((a, b) => b.order.compareTo(a.order));
 

@@ -65,17 +65,10 @@ class _NoteFormState extends State<NoteForm> {
             minLines: 5,
             expands: false,
             keyboardType: TextInputType.multiline,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
               hintText: 'What\'s on your mind?',
               hintStyle: TextStyle(
-                color: Colors.grey[500],
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -92,8 +85,7 @@ class _NoteFormState extends State<NoteForm> {
           child: TextButton(
             onPressed: _addNote,
             style: TextButton.styleFrom(
-              backgroundColor:
-                  Colors.blue, // Bright color for button background
+              backgroundColor: Colors.blue[800],
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
               shape: RoundedRectangleBorder(
