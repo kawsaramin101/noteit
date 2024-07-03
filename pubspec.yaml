@@ -7,6 +7,7 @@ environment:
     sdk: ">=3.4.1 <4.0.0"
 
 dependencies:
+    bitsdojo_window: ^0.1.6
     flutter:
         sdk: flutter
     flutter_masonry_view: ^0.0.2

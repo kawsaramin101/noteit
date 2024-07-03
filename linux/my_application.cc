@@ -7,6 +7,10 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+
+// bitsdojo_windows
+#include <bitsdojo_window_linux/bitsdojo_window_plugin.h>
+
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
@@ -47,7 +51,10 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "notes");
   }
 
-  gtk_window_set_default_size(window, 1000, 700);
+  auto bdw = bitsdojo_window_from(window);        
+  bdw->setCustomFrame(true);     
+
+  // gtk_window_set_default_size(window, 1000, 700);
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
