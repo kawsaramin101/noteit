@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:isar/isar.dart';
+import 'package:notes/data/note_model.dart';
 import 'package:notes/routes/home.dart';
 import 'package:notes/routes/second.dart';
 import 'package:notes/componants/new/note_form.dart';
+import 'package:provider/provider.dart';
 
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
@@ -53,6 +56,7 @@ class _BaseLayoutState extends State<BaseLayout> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: Colors.grey[900],
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(4.0))),
             contentPadding: const EdgeInsets.all(0),
@@ -75,10 +79,16 @@ class _BaseLayoutState extends State<BaseLayout> {
               ),
               TextButton(
                 onPressed: () {
-                  final json =
+                  final isar = Provider.of<Isar>(context, listen: false);
+
+                  final jsonEncodedData =
                       jsonEncode(_quillController.document.toDelta().toJson());
-                  debugPrint("$json");
-                  debugPrint("$_isNotePinned");
+                  final contentInPlainText =
+                      _quillController.document.toPlainText();
+                  createNote(
+                      isar, jsonEncodedData, contentInPlainText, _isNotePinned);
+                  _quillController.clear();
+                  Navigator.of(context).pop();
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.blue[800],
@@ -102,75 +112,64 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       body: WindowBorder(
         color: borderColor!,
-        width: 1,
         child: Column(
           children: [
             SizedBox(
               height: 40.0,
-              child: MoveWindow(
-                child: Container(
-                  color: backgroundColor,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.menu,
-                              color: iconColor,
-                              weight: 0.5,
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add, color: iconColor),
-                            onPressed: showNoteForm,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 350,
-                        height: 32.0,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: isDarkMode
-                                ? Colors.grey[800]
-                                : Colors.grey[200],
-                            hintText: 'Search',
-                            hintStyle: TextStyle(
-                              color: iconColor,
-                            ),
-                            suffixIcon: Icon(Icons.search,
-                                color: iconColor, size: 16.0),
-                            border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 8.0,
-                              horizontal: 8.0,
-                            ),
-                          ),
-                          style: TextStyle(
+              child: Container(
+                color: backgroundColor,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.menu,
                             color: iconColor,
-                            fontSize: 12.0,
+                            weight: 0.5,
                           ),
-                          textAlignVertical: TextAlignVertical.center,
                         ),
-                      ),
-                      Row(
-                        children: [
-                          const SizedBox(width: 8.0),
-                          WindowButtons(
-                            buttonColors: buttonColors,
-                            closeButtonColors: closeButtonColors,
+                        IconButton(
+                          icon: Icon(Icons.add, color: iconColor),
+                          onPressed: showNoteForm,
+                        ),
+                      ],
+                    ),
+                    Expanded(child: MoveWindow()),
+                    SizedBox(
+                      width: 350,
+                      height: 32.0,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor:
+                              isDarkMode ? Colors.grey[800] : Colors.grey[200],
+                          hintText: 'Search',
+                          hintStyle: TextStyle(
+                            color: iconColor,
+                            fontSize: 16.0,
                           ),
-                        ],
+                          prefixIcon:
+                              Icon(Icons.search, color: iconColor, size: 18.0),
+                          border: const OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                        ),
+                        style: TextStyle(color: iconColor, fontSize: 16.0),
+                        textAlignVertical: TextAlignVertical.center,
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(child: MoveWindow()),
+                    WindowButtons(
+                      buttonColors: buttonColors,
+                      closeButtonColors: closeButtonColors,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -209,7 +208,7 @@ class WindowButtons extends StatelessWidget {
       {super.key,
       required this.buttonColors,
       required this.closeButtonColors,
-      this.size = 16});
+      this.size = 18});
 
   @override
   Widget build(BuildContext context) {

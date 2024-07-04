@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/componants/new/note_list.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,22 +11,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Column(
         children: <Widget>[
-          const SizedBox(
-            height: 8.0,
+          SizedBox(
+            height: 12.0,
           ),
-          // NoteForm(),
-          TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/second');
-              },
-              child: Text("Go to second page")),
-          const SizedBox(
-            height: 16.0,
-          ),
-          // NoteList(),
+          NoteList(),
         ],
       ),
     );

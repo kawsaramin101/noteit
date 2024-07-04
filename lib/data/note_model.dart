@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'note_model.g.dart';
 
@@ -6,7 +7,6 @@ part 'note_model.g.dart';
 class Note {
   Id id = Isar.autoIncrement;
 
-  String? title;
   late String content;
   late DateTime createdAt;
   late int order;
@@ -15,8 +15,26 @@ class Note {
   final parent = IsarLink<Note>();
 
   @Index()
-  List<String> get titleWords => title?.split(' ') ?? [];
+  late List<String> contentWords;
+}
 
-  @Index()
-  List<String> get contentWords => content.split(' ');
+void createNote(Isar isar, String contentInJson, String contentInPlainText,
+    bool pinned) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
+
+  int newOrder = lastOrder + 1;
+
+  final newNote = Note()
+    ..content = contentInJson
+    ..createdAt = DateTime.now()
+    ..order = newOrder
+    ..pinned = pinned
+    ..contentWords = contentInPlainText.split(' ');
+
+  await isar.writeTxn(() async {
+    await isar.notes.put(newNote);
+  });
+
+  await prefs.setInt('lastAddedNoteOrder', newOrder);
 }
