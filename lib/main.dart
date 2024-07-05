@@ -7,8 +7,6 @@ import 'package:notes/data/note_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'package:google_fonts/google_fonts.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -47,8 +45,6 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const fontWeight = FontWeight.w300;
-
     return MultiProvider(
         providers: [
           Provider<Isar>.value(value: isar),
@@ -76,7 +72,8 @@ ThemeData _buildTheme(brightness) {
 
   return ThemeData(
       brightness: brightness,
-      fontFamily: 'RobotoMono',
+      fontFamily: 'NotoSans',
+      splashFactory: NoSplash.splashFactory,
       textTheme: const TextTheme(
         displayLarge: TextStyle(fontWeight: fontWeight),
         displayMedium: TextStyle(fontWeight: fontWeight),
