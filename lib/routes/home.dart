@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notes/componants/new/note_list.dart';
+import 'package:notes/componants/note_list.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

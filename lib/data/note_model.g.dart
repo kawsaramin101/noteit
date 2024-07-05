@@ -69,6 +69,13 @@ const NoteSchema = CollectionSchema(
       name: r'parent',
       target: r'Note',
       single: true,
+    ),
+    r'edits': LinkSchema(
+      id: 7218732742932973667,
+      name: r'edits',
+      target: r'Note',
+      single: false,
+      linkName: r'parent',
     )
   },
   embeddedSchemas: {},
@@ -151,12 +158,13 @@ Id _noteGetId(Note object) {
 }
 
 List<IsarLinkBase<dynamic>> _noteGetLinks(Note object) {
-  return [object.parent];
+  return [object.parent, object.edits];
 }
 
 void _noteAttach(IsarCollection<dynamic> col, Id id, Note object) {
   object.id = id;
   object.parent.attach(col, col.isar.collection<Note>(), r'parent', id);
+  object.edits.attach(col, col.isar.collection<Note>(), r'edits', id);
 }
 
 extension NoteQueryWhereSort on QueryBuilder<Note, Note, QWhere> {
@@ -803,6 +811,61 @@ extension NoteQueryLinks on QueryBuilder<Note, Note, QFilterCondition> {
   QueryBuilder<Note, Note, QAfterFilterCondition> parentIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'parent', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> edits(FilterQuery<Note> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'edits');
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'edits', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'edits', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'edits', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'edits', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'edits', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Note, Note, QAfterFilterCondition> editsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'edits', lower, includeLower, upper, includeUpper);
     });
   }
 }

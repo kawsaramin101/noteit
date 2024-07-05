@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:notes/componants/note_form.dart';
 import 'package:notes/data/note_model.dart';
 
 class NoteCard extends StatefulWidget {
@@ -24,45 +25,49 @@ class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
 
   final _controller = QuillController.basic();
+  final _editingController = QuillController.basic();
+  bool _isNotePinned = false;
 
   @override
   void initState() {
     super.initState();
 
+    _isNotePinned = widget.note.pinned;
     final json = jsonDecode(widget.note.content);
 
     _controller.document = Document.fromJson(json);
     _controller.readOnly = true;
+    _editingController.document = Document.fromJson(json);
+  }
+
+  void showNoteEditForm() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return NoteForm(
+            controller: _editingController,
+            isNotePinned: _isNotePinned,
+            togglePinnedStatus: () {
+              widget.togglePinnedStatus();
+            });
+      },
+    );
   }
 
   Future<void> showEditDialog(BuildContext context) async {
-    return showDialog<void>(
+    return showDialog(
       context: context,
-      barrierDismissible: true, // user must tap button to dismiss the dialog
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[800],
-          content: const SizedBox(
-            height: 230,
-            // child: NoteForm(note: widget.note),
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 15.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-              ),
-              child: const Text(
-                'Cancel',
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+        return NoteForm(
+          controller: _editingController,
+          isNotePinned: _isNotePinned,
+          togglePinnedStatus: () {
+            debugPrint("RUn");
+            setState(() {
+              _isNotePinned = !_isNotePinned;
+            });
+          },
+          note: widget.note,
         );
       },
     );
@@ -71,7 +76,7 @@ class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[900],
+      // color: Colors.grey[900],
       child: MouseRegion(
         onEnter: (_) {
           setState(() {
@@ -93,7 +98,6 @@ class _NoteCardState extends State<NoteCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Date placeholder
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 0.0, 0.0),
                       child: Text(
@@ -163,15 +167,17 @@ class _NoteCardState extends State<NoteCard> {
                 ),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
-                    child: QuillEditor.basic(
-                      configurations: QuillEditorConfigurations(
-                        controller: _controller,
-                        enableSelectionToolbar: false,
-                        sharedConfigurations: const QuillSharedConfigurations(
-                          dialogBarrierColor: Colors.white,
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+                      child: QuillEditor.basic(
+                        configurations: QuillEditorConfigurations(
+                          controller: _controller,
+                          enableSelectionToolbar: false,
+                          sharedConfigurations: const QuillSharedConfigurations(
+                            dialogBarrierColor: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -197,7 +203,7 @@ String formatDate(DateTime date) {
     hour -= 12;
   }
   String formattedDate =
-      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $amPm '
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $amPm, '
       '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
 
   return formattedDate;

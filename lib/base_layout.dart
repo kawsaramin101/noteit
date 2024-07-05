@@ -1,14 +1,8 @@
-import 'dart:convert';
-
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:isar/isar.dart';
-import 'package:notes/data/note_model.dart';
 import 'package:notes/routes/home.dart';
-import 'package:notes/routes/second.dart';
-import 'package:notes/componants/new/note_form.dart';
-import 'package:provider/provider.dart';
+import 'package:notes/componants/note_form.dart';
 
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
@@ -18,11 +12,27 @@ class BaseLayout extends StatefulWidget {
 }
 
 class _BaseLayoutState extends State<BaseLayout> {
-  final _formKey = GlobalKey<FormState>();
-
   final _quillController = QuillController.basic();
 
   bool _isNotePinned = false;
+
+  void showNoteForm() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return NoteForm(
+          controller: _quillController,
+          isNotePinned: _isNotePinned,
+          togglePinnedStatus: () {
+            debugPrint("RUn");
+            setState(() {
+              _isNotePinned = !_isNotePinned;
+            });
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,64 +61,6 @@ class _BaseLayoutState extends State<BaseLayout> {
       iconMouseDown: Colors.white,
     );
 
-    void showNoteForm() {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.grey[900],
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4.0))),
-            contentPadding: const EdgeInsets.all(0),
-            actionsPadding: const EdgeInsets.fromLTRB(0.0, 12.0, 16.0, 16.0),
-            content: NoteForm(
-              formKey: _formKey,
-              controller: _quillController,
-              onPinnedChanged: (isNotePinned) {
-                setState(() {
-                  _isNotePinned = isNotePinned;
-                });
-              },
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                onPressed: () {
-                  final isar = Provider.of<Isar>(context, listen: false);
-
-                  final jsonEncodedData =
-                      jsonEncode(_quillController.document.toDelta().toJson());
-                  final contentInPlainText =
-                      _quillController.document.toPlainText();
-                  createNote(
-                      isar, jsonEncodedData, contentInPlainText, _isNotePinned);
-                  _quillController.clear();
-                  Navigator.of(context).pop();
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.blue[800],
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 15.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                ),
-                child: const Text(
-                  "Save",
-                  style: TextStyle(color: Colors.white),
-                ),
-              )
-            ],
-          );
-        },
-      );
-    }
-
     return Scaffold(
       body: WindowBorder(
         color: borderColor!,
@@ -119,7 +71,7 @@ class _BaseLayoutState extends State<BaseLayout> {
               child: Container(
                 color: backgroundColor,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
@@ -139,29 +91,33 @@ class _BaseLayoutState extends State<BaseLayout> {
                       ],
                     ),
                     Expanded(child: MoveWindow()),
-                    SizedBox(
-                      width: 350,
-                      height: 32.0,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor:
-                              isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                          hintText: 'Search',
-                          hintStyle: TextStyle(
-                            color: iconColor,
-                            fontSize: 16.0,
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 350,
+                        height: 32.0,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: isDarkMode
+                                ? Colors.grey[800]
+                                : Colors.grey[200],
+                            hintText: 'Search',
+                            hintStyle: TextStyle(
+                              color: iconColor,
+                              fontSize: 16.0,
+                            ),
+                            prefixIcon: Icon(Icons.search,
+                                color: iconColor, size: 18.0),
+                            border: const OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
                           ),
-                          prefixIcon:
-                              Icon(Icons.search, color: iconColor, size: 18.0),
-                          border: const OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                          style: TextStyle(color: iconColor, fontSize: 16.0),
+                          textAlignVertical: TextAlignVertical.center,
                         ),
-                        style: TextStyle(color: iconColor, fontSize: 16.0),
-                        textAlignVertical: TextAlignVertical.center,
                       ),
                     ),
                     Expanded(child: MoveWindow()),
@@ -181,9 +137,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                     case '/':
                       builder = (BuildContext context) => const Home();
                       break;
-                    case '/second':
-                      builder = (BuildContext context) => const SecondPage();
-                      break;
+
                     default:
                       throw Exception('Invalid route: ${settings.name}');
                   }

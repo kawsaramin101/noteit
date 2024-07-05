@@ -8,10 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  // await Hive.initFlutter();
-  // Hive.registerAdapter(NoteAdapter());
-  // await Hive.openBox<Note>('notes');
-
   WidgetsFlutterBinding.ensureInitialized();
 
   final dir = await getApplicationDocumentsDirectory();
@@ -28,54 +24,9 @@ void main() async {
   //       -pinned notes?
   //       -
 
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<Isar>.value(value: isar),
-      ],
-      child: MaterialApp(
-        home: const BaseLayout(),
-        darkTheme: ThemeData(
-          textTheme: const TextTheme(
-              // displayLarge:
-              //     TextStyle(fontSize: 24.0, fontWeight: FontWeight.w200),
-              // displayMedium:
-              //     TextStyle(fontSize: 20.0, fontWeight: FontWeight.w200),
-              // displaySmall:
-              //     TextStyle(fontSize: 16.0, fontWeight: FontWeight.w200),
-              // headlineLarge:
-              //     TextStyle(fontSize: 14.0, fontWeight: FontWeight.w200),
-              // headlineMedium:
-              //     TextStyle(fontSize: 12.0, fontWeight: FontWeight.w200),
-              // headlineSmall:
-              //     TextStyle(fontSize: 10.0, fontWeight: FontWeight.w200),
-              // titleLarge: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w100),
-              // titleMedium: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
-              // titleSmall: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w100),
-              // bodyLarge: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w100),
-              // bodyMedium: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
-              // bodySmall: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w100),
-              // labelLarge: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
-              // labelMedium: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w100),
-              // labelSmall: TextStyle(fontSize: 8.0, fontWeight: FontWeight.w100),
-              ),
-          brightness: Brightness.dark,
-        ),
-        themeMode: ThemeMode.dark,
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context)
-                .copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: child!,
-          );
-        },
-      ),
-    ),
-  );
+  runApp(MainWidget(
+    isar: isar,
+  ));
 
   doWhenWindowReady(() {
     const initialSize = Size(1000, 750);
@@ -84,4 +35,75 @@ void main() async {
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
+}
+
+class MainWidget extends StatelessWidget {
+  final Isar isar;
+  const MainWidget({super.key, required this.isar});
+
+  // Color? textColor = Colors.blueGrey[100];
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+        providers: [
+          Provider<Isar>.value(value: isar),
+        ],
+        child: MaterialApp(
+          home: const BaseLayout(),
+
+          darkTheme: ThemeData(
+            // textTheme: Theme.of(context).textTheme.apply(
+            //       bodyColor: Colors.pink[400],
+            //       displayColor: Colors.pink[400],
+            //     ),
+            // textTheme: TextTheme(
+            //   displayLarge:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[400]),
+            //   displayMedium:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   displaySmall:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   headlineLarge:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   headlineMedium:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   headlineSmall:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   titleLarge:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   titleMedium:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   titleSmall:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   bodyLarge:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   bodyMedium:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   bodySmall:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   labelLarge:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   labelMedium:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            //   labelSmall:
+            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
+            // ),
+            brightness: Brightness.dark,
+          ),
+          themeMode: ThemeMode.dark,
+          // theme: ThemeData(
+          //   useMaterial3: true,
+          // ),
+          debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(1.05),
+              ),
+              child: child!,
+            );
+          },
+        ));
+  }
 }

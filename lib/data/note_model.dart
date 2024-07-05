@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,12 +15,16 @@ class Note {
 
   final parent = IsarLink<Note>();
 
+  @Backlink(to: 'parent')
+  final edits = IsarLinks<Note>();
+
   @Index()
   late List<String> contentWords;
 }
 
-void createNote(Isar isar, String contentInJson, String contentInPlainText,
-    bool pinned) async {
+Future<Note> createNote(
+    Isar isar, String contentInJson, String contentInPlainText, bool pinned,
+    {Note? parentNote}) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
 
@@ -34,7 +39,26 @@ void createNote(Isar isar, String contentInJson, String contentInPlainText,
 
   await isar.writeTxn(() async {
     await isar.notes.put(newNote);
+
+    if (parentNote != null) {
+      newNote.order = parentNote.order;
+      newNote.parent.value = parentNote;
+      parentNote.edits.add(newNote);
+      debugPrint("${parentNote.edits}");
+      debugPrint("${newNote.parent}");
+
+      await parentNote.edits.save();
+      await newNote.parent.save();
+    }
   });
 
   await prefs.setInt('lastAddedNoteOrder', newOrder);
+
+  return newNote;
+}
+
+Future<void> updateNote(Isar isar, Note oldNote, String contentInJson,
+    String contentInPlainText, bool pinned) async {
+  await createNote(isar, contentInJson, contentInPlainText, pinned,
+      parentNote: oldNote);
 }

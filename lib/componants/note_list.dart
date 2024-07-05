@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_masonry_view/flutter_masonry_view.dart';
-
-import 'package:notes/data/note.dart';
+import 'package:isar/isar.dart';
 import 'package:notes/componants/note_card.dart';
+
+import 'package:notes/data/note_model.dart';
+import 'package:provider/provider.dart';
+
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class NoteList extends StatefulWidget {
   const NoteList({super.key});
@@ -14,45 +17,97 @@ class NoteList extends StatefulWidget {
 }
 
 class _NoteListState extends State<NoteList> {
-  final Box<Note> noteBox = Hive.box<Note>('notes');
+  late Isar isar;
+  late Stream<void>? pinnedNotesStream;
+  late Stream<void>? unpinnedNotesStream;
 
-  void _deleteNote(int key) {
-    showDeleteConfirmationialog(context, key);
+  StreamSubscription<void>? pinnedNotesSubscription;
+  StreamSubscription<void>? unpinnedNotesSubscription;
+
+  List<Note> pinnedNotes = [];
+  List<Note> unpinnedNotes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    isar = Provider.of<Isar>(context, listen: false);
+    initializeIsar();
+    setupWatcher();
   }
 
-  void togglePinnedStatus(int key) {
-    final note = noteBox.get(key);
+  Future<void> initializeIsar() async {
+    fetchPinnedNotes();
+    fetchUnpinnedNotes();
+  }
+
+  void setupWatcher() {
+    pinnedNotesStream =
+        isar.notes.filter().pinnedEqualTo(true).sortByOrderDesc().watchLazy();
+
+    unpinnedNotesStream =
+        isar.notes.filter().pinnedEqualTo(false).sortByOrderDesc().watchLazy();
+
+    pinnedNotesSubscription = pinnedNotesStream?.listen((_) {
+      fetchPinnedNotes();
+    });
+
+    unpinnedNotesSubscription = unpinnedNotesStream?.listen((_) {
+      fetchUnpinnedNotes();
+    });
+  }
+
+  void fetchPinnedNotes() async {
+    final fetchedPinnedNotes = await isar.notes
+        .filter()
+        .pinnedEqualTo(true)
+        .editsLengthEqualTo(0)
+        .sortByOrderDesc()
+        .findAll();
+
+    setState(() {
+      pinnedNotes = fetchedPinnedNotes;
+    });
+  }
+
+  void fetchUnpinnedNotes() async {
+    final fetchedUnpinnedNotes = await isar.notes
+        .filter()
+        .pinnedEqualTo(false)
+        .editsLengthEqualTo(0)
+        .sortByOrderDesc()
+        .findAll();
+
+    setState(() {
+      unpinnedNotes = fetchedUnpinnedNotes;
+    });
+  }
+
+  void _deleteNote(Id id) {
+    showDeleteConfirmationDialog(context, id);
+  }
+
+  void togglePinnedStatus(int id) async {
+    final note = await isar.notes.get(id);
     if (note != null) {
-      noteBox.put(
-        key,
-        Note(
-          title: note.title,
-          content: note.content,
-          createdAt: note.createdAt,
-          order: note.order,
-          pinned: !note.pinned,
-          parent: note.parent,
-        ),
-      );
+      note.pinned = !note.pinned;
+      await isar.writeTxn(() async {
+        await isar.notes.put(note);
+      });
     }
   }
 
-  Future<void> showDeleteConfirmationialog(
-    BuildContext context,
-    int noteKey,
-  ) async {
+  Future<void> showDeleteConfirmationDialog(BuildContext context, Id id) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4.0))),
           contentPadding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 32.0),
-          backgroundColor: Colors.grey[800],
+          backgroundColor: Colors.grey[900],
           content: const Text(
             "Are you sure you want to delete this note?",
-            style: TextStyle(
-              color: Colors.white,
-            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -81,9 +136,13 @@ class _NoteListState extends State<NoteList> {
                 'Delete',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () {
-                noteBox.delete(noteKey);
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await isar.writeTxn(() async {
+                  await isar.notes.delete(id);
+                });
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -94,87 +153,96 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: noteBox.listenable(),
-      builder: (context, Box<Note> box, _) {
-        if (box.values.isEmpty) {
-          return const Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(0.0, 180.0, 0, 0),
-              child: Text(
-                'No notes yet.',
-                style: TextStyle(color: Colors.white),
-              ),
+    var size = MediaQuery.of(context).size;
+
+    int crossAxisCount = 3;
+
+    final double itemWidth =
+        (size.width - (crossAxisCount - 1) * 10) / crossAxisCount;
+    const double itemHeight = 250.0;
+
+    return (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
+        ? const Center(
+            child: Text(
+              'No notes yet.',
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
             ),
-          );
-        } else {
-          final pinnedNotes =
-              box.values.where((item) => item.pinned == true).toList();
-          final unpinnedNotes =
-              box.values.where((item) => item.pinned == false).toList();
-
-          pinnedNotes.sort((a, b) => b.order.compareTo(a.order));
-          unpinnedNotes.sort((a, b) => b.order.compareTo(a.order));
-
-          return Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (pinnedNotes.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      child: Text(
-                        'Pinned Notes',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+          )
+        : Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (pinnedNotes.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                    child: Text(
+                      'Pinned Notes',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    MasonryView(
-                      listOfItem: pinnedNotes,
-                      numberOfColumn: 3,
-                      itemBuilder: (item) {
+                  ),
+                  Expanded(
+                    child: ReorderableGridView.count(
+                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: (itemWidth / itemHeight),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      onReorder: (oldIndex, newIndex) {
+                        // Handle reorder logic here
+                      },
+                      children: pinnedNotes.map((note) {
                         return NoteCard(
-                          note: item,
+                          key: ValueKey(
+                              note.id), // Ensure each note has a unique key
+                          note: note,
                           deleteNote: _deleteNote,
                           togglePinnedStatus: togglePinnedStatus,
                         );
-                      },
+                      }).toList(),
                     ),
-                  ],
-                  if (unpinnedNotes.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      child: Text(
-                        'All Notes',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    MasonryView(
-                      listOfItem: unpinnedNotes,
-                      numberOfColumn: 3,
-                      itemBuilder: (item) {
-                        return NoteCard(
-                          note: item,
-                          deleteNote: _deleteNote,
-                          togglePinnedStatus: togglePinnedStatus,
-                        );
-                      },
-                    ),
-                  ],
+                  ),
                 ],
-              ),
+                const SizedBox(
+                  height: 14.0,
+                ),
+                if (unpinnedNotes.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                    child: Text(
+                      'All Notes',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ReorderableGridView.count(
+                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: (itemWidth / itemHeight),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      onReorder: (oldIndex, newIndex) {
+                        // Handle reorder logic here
+                      },
+                      children: unpinnedNotes.map((note) {
+                        return NoteCard(
+                          key: ValueKey(
+                              note.id), // Ensure each note has a unique key
+                          note: note,
+                          deleteNote: _deleteNote,
+                          togglePinnedStatus: togglePinnedStatus,
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 14.0,
+                  )
+                ],
+              ],
             ),
           );
-        }
-      },
-    );
   }
 }

@@ -1,0 +1,192 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:notes/componants/note_card.dart';
+import 'package:notes/data/note_model.dart';
+import 'package:provider/provider.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+
+class NoteList extends StatefulWidget {
+  const NoteList({Key? key}) : super(key: key);
+
+  @override
+  State<NoteList> createState() => _NoteListState();
+}
+
+class _NoteListState extends State<NoteList> {
+  late Isar isar;
+  late Stream<void>? notesStream;
+  StreamSubscription<void>? notesSubscription;
+  List<Note> notes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    isar = Provider.of<Isar>(context, listen: false);
+    initializeIsar();
+    setupWatcher();
+  }
+
+  Future<void> initializeIsar() async {
+    fetchNotes();
+  }
+
+  void setupWatcher() {
+    notesStream = isar.notes.watchLazy();
+    notesSubscription = notesStream?.listen((_) {
+      fetchNotes();
+    });
+  }
+
+  void fetchNotes() async {
+    final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
+
+    debugPrint("$fetchedNotes");
+
+    setState(() {
+      notes = fetchedNotes;
+    });
+  }
+
+  void _deleteNote(Id id) {
+    showDeleteConfirmationDialog(context, id);
+  }
+
+  void togglePinnedStatus(int id) async {
+    final note = await isar.notes.get(id);
+    if (note != null) {
+      note.pinned = !note.pinned;
+      await isar.writeTxn(() async {
+        await isar.notes.put(note);
+      });
+    }
+  }
+
+  Future<void> showDeleteConfirmationDialog(BuildContext context, Id id) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 32.0),
+          backgroundColor: Colors.grey[900],
+          content: const Text(
+            "Are you sure you want to delete this note?",
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () async {
+                await isar.writeTxn(() async {
+                  await isar.notes.delete(id);
+                });
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    int crossAxisCount = 3;
+    final double itemWidth =
+        (size.width - (crossAxisCount - 1) * 10) / crossAxisCount;
+    const double itemHeight = 250.0;
+
+    return notes.isEmpty
+        ? const Center(
+            child: Text(
+              'No notes yet.',
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            ),
+          )
+        : Expanded(
+            child: ReorderableGridView.count(
+            padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 0.0),
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: (itemWidth / itemHeight),
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            onReorder: (oldIndex, newIndex) {
+              // Handle reorder logic here if needed
+            },
+            children: [
+              if (notes.any((note) => note.pinned)) ...[
+                const Padding(
+                  key: ValueKey("PinnedNotes"),
+                  padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                  child: Text(
+                    'Pinned Notes',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                for (var note in notes.where((note) => note.pinned))
+                  NoteCard(
+                    key: ValueKey(note.id),
+                    note: note,
+                    deleteNote: _deleteNote,
+                    togglePinnedStatus: togglePinnedStatus,
+                  ),
+              ],
+              if (notes.any((note) => !note.pinned)) ...[
+                const Padding(
+                  key: ValueKey("UnpinnedNotes"),
+                  padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                  child: Text(
+                    'All Notes',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                for (var note in notes.where((note) => !note.pinned))
+                  NoteCard(
+                    key: ValueKey(note.id),
+                    note: note,
+                    deleteNote: _deleteNote,
+                    togglePinnedStatus: togglePinnedStatus,
+                  ),
+              ]
+            ],
+          ));
+  }
+
+  @override
+  void dispose() {
+    notesSubscription?.cancel();
+    super.dispose();
+  }
+}
