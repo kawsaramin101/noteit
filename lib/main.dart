@@ -7,6 +7,8 @@ import 'package:notes/data/note_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -45,56 +47,17 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const fontWeight = FontWeight.w300;
+
     return MultiProvider(
         providers: [
           Provider<Isar>.value(value: isar),
         ],
         child: MaterialApp(
           home: const BaseLayout(),
-
-          darkTheme: ThemeData(
-            // textTheme: Theme.of(context).textTheme.apply(
-            //       bodyColor: Colors.pink[400],
-            //       displayColor: Colors.pink[400],
-            //     ),
-            // textTheme: TextTheme(
-            //   displayLarge:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[400]),
-            //   displayMedium:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   displaySmall:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   headlineLarge:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   headlineMedium:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   headlineSmall:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   titleLarge:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   titleMedium:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   titleSmall:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   bodyLarge:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   bodyMedium:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   bodySmall:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   labelLarge:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   labelMedium:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            //   labelSmall:
-            //       TextStyle(fontWeight: fontWeight, color: Colors.grey[100]),
-            // ),
-            brightness: Brightness.dark,
-          ),
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
           themeMode: ThemeMode.dark,
-          // theme: ThemeData(
-          //   useMaterial3: true,
-          // ),
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             return MediaQuery(
@@ -106,4 +69,29 @@ class MainWidget extends StatelessWidget {
           },
         ));
   }
+}
+
+ThemeData _buildTheme(brightness) {
+  const fontWeight = FontWeight.w300;
+
+  return ThemeData(
+      brightness: brightness,
+      fontFamily: 'RobotoMono',
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(fontWeight: fontWeight),
+        displayMedium: TextStyle(fontWeight: fontWeight),
+        displaySmall: TextStyle(fontWeight: fontWeight),
+        headlineLarge: TextStyle(fontWeight: fontWeight),
+        headlineMedium: TextStyle(fontWeight: fontWeight),
+        headlineSmall: TextStyle(fontWeight: fontWeight),
+        titleLarge: TextStyle(fontWeight: fontWeight),
+        titleMedium: TextStyle(fontWeight: fontWeight),
+        titleSmall: TextStyle(fontWeight: fontWeight),
+        bodyLarge: TextStyle(fontWeight: fontWeight),
+        bodyMedium: TextStyle(fontWeight: fontWeight),
+        bodySmall: TextStyle(fontWeight: fontWeight),
+        labelLarge: TextStyle(fontWeight: fontWeight),
+        labelMedium: TextStyle(fontWeight: fontWeight),
+        labelSmall: TextStyle(fontWeight: fontWeight),
+      ));
 }

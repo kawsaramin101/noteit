@@ -165,7 +165,10 @@ class _NoteListState extends State<NoteList> {
         ? const Center(
             child: Text(
               'No notes yet.',
-              style: TextStyle(color: Colors.white, fontSize: 16.0),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
             ),
           )
         : Expanded(

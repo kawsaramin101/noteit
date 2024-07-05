@@ -62,7 +62,6 @@ class _NoteCardState extends State<NoteCard> {
           controller: _editingController,
           isNotePinned: _isNotePinned,
           togglePinnedStatus: () {
-            debugPrint("RUn");
             setState(() {
               _isNotePinned = !_isNotePinned;
             });

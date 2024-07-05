@@ -50,6 +50,10 @@ class _NoteFormState extends State<NoteForm> {
     Navigator.of(context).pop();
   }
 
+  void _undo() {}
+
+  void _redo() {}
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -64,7 +68,6 @@ class _NoteFormState extends State<NoteForm> {
         child: Column(
           children: [
             Container(
-              width: 400.0,
               padding: const EdgeInsets.all(8.0),
               child: QuillToolbar.simple(
                 configurations: QuillSimpleToolbarConfigurations(
@@ -85,6 +88,20 @@ class _NoteFormState extends State<NoteForm> {
                         }
                       },
                     ),
+                    if (widget.note != null) ...[
+                      QuillToolbarCustomButtonOptions(
+                        icon: const Icon(
+                          Icons.undo,
+                        ),
+                        tooltip: 'Undo',
+                        onPressed: _undo,
+                      ),
+                      QuillToolbarCustomButtonOptions(
+                        icon: const Icon(Icons.redo),
+                        tooltip: 'Redo',
+                        onPressed: _redo,
+                      ),
+                    ],
                     QuillToolbarCustomButtonOptions(
                         icon: Icon(
                           _isNotePinned
