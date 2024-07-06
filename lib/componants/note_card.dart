@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:isar/isar.dart';
 import 'package:notes/componants/note_form.dart';
+import 'package:notes/data/edit_model.dart';
 import 'package:notes/data/note_model.dart';
+import 'package:provider/provider.dart';
 
 class NoteCard extends StatefulWidget {
   final Note note;
@@ -22,6 +25,9 @@ class NoteCard extends StatefulWidget {
 }
 
 class _NoteCardState extends State<NoteCard> {
+  late Isar isar;
+
+  Edit? edit;
   bool _isHovered = false;
 
   final _controller = QuillController.basic();
@@ -31,9 +37,25 @@ class _NoteCardState extends State<NoteCard> {
   @override
   void initState() {
     super.initState();
+    isar = Provider.of<Isar>(context, listen: false);
 
     _isNotePinned = widget.note.pinned;
-    final json = jsonDecode(widget.note.content);
+    getNoteEdit();
+  }
+
+  void getNoteEdit() async {
+    final fetchedEdit = await isar.edits
+        .where(sort: Sort.desc)
+        .anyId()
+        .filter()
+        .note((q) => q.idEqualTo(widget.note.id))
+        .findFirst();
+
+    setState(() {
+      edit = fetchedEdit;
+    });
+
+    final json = jsonDecode(edit!.content);
 
     _controller.document = Document.fromJson(json);
     _controller.readOnly = true;
@@ -67,9 +89,24 @@ class _NoteCardState extends State<NoteCard> {
             });
           },
           note: widget.note,
+          edit: edit,
+          changeEdit: changeEdit,
         );
       },
     );
+  }
+
+  void changeEdit(Edit edited) {
+    debugPrint("run");
+    setState(() {
+      edit = edited;
+    });
+
+    final json = jsonDecode(edit!.content);
+
+    _controller.document = Document.fromJson(json);
+    _controller.readOnly = true;
+    _editingController.document = Document.fromJson(json);
   }
 
   @override
@@ -100,7 +137,7 @@ class _NoteCardState extends State<NoteCard> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 0.0, 0.0),
                       child: Text(
-                        formatDate(widget.note.createdAt),
+                        edit != null ? formatDate(edit!.createdAt) : "Loading",
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12.0,

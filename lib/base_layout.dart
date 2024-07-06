@@ -39,11 +39,11 @@ class _BaseLayoutState extends State<BaseLayout> {
     final theme = Theme.of(context);
 
     final isDarkMode = theme.brightness == Brightness.dark;
-    final backgroundColor = isDarkMode ? Colors.grey[850] : Colors.white;
+    // final backgroundColor = isDarkMode ? Colors.grey[850] : Colors.white;
     final iconColor = isDarkMode ? Colors.white : Colors.black;
     final hoverColor = isDarkMode ? Colors.grey[700] : Colors.grey[300];
     final pressColor = isDarkMode ? Colors.grey[600] : Colors.grey[400];
-    final borderColor = isDarkMode ? Colors.grey[700] : Colors.grey[300];
+    final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
 
     final buttonColors = WindowButtonColors(
       iconNormal: iconColor,
@@ -67,66 +67,55 @@ class _BaseLayoutState extends State<BaseLayout> {
         child: Column(
           children: [
             SizedBox(
-              height: 40.0,
-              child: Container(
-                color: backgroundColor,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.menu,
-                            color: iconColor,
-                            weight: 0.5,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add, color: iconColor),
-                          onPressed: showNoteForm,
-                        ),
-                      ],
-                    ),
-                    Expanded(child: MoveWindow()),
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 350,
-                        height: 32.0,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: isDarkMode
-                                ? Colors.grey[800]
-                                : Colors.grey[200],
-                            hintText: 'Search',
-                            hintStyle: TextStyle(
-                              color: iconColor,
-                              fontSize: 16.0,
-                            ),
-                            prefixIcon: Icon(Icons.search,
-                                color: iconColor, size: 18.0),
-                            border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
-                          ),
-                          style: TextStyle(color: iconColor, fontSize: 16.0),
-                          textAlignVertical: TextAlignVertical.center,
+              height: 46.0,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.menu,
+                          color: iconColor,
+                          weight: 0.5,
                         ),
                       ),
+                      IconButton(
+                        icon: Icon(Icons.add, color: iconColor),
+                        onPressed: showNoteForm,
+                      ),
+                    ],
+                  ),
+                  Expanded(child: MoveWindow()),
+                  Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: 350,
+                      height: 34.0,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: 'Search',
+                          prefixIcon:
+                              Icon(Icons.search, color: iconColor, size: 18.0),
+                          border: const OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                      ),
                     ),
-                    Expanded(child: MoveWindow()),
-                    WindowButtons(
-                      buttonColors: buttonColors,
-                      closeButtonColors: closeButtonColors,
-                    ),
-                  ],
-                ),
+                  ),
+                  Expanded(child: MoveWindow()),
+                  WindowButtons(
+                    buttonColors: buttonColors,
+                    closeButtonColors: closeButtonColors,
+                  ),
+                ],
               ),
             ),
             Expanded(

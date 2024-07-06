@@ -18,6 +18,8 @@ dependencies:
     provider: ^6.1.2
     reorderable_grid_view: ^2.2.6
     shared_preferences: ^2.2.3
+    process_run: ^1.0.0+1
+    system_info2: ^4.0.0
 
 dev_dependencies:
     flutter_test:

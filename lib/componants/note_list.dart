@@ -60,7 +60,6 @@ class _NoteListState extends State<NoteList> {
     final fetchedPinnedNotes = await isar.notes
         .filter()
         .pinnedEqualTo(true)
-        .editsLengthEqualTo(0)
         .sortByOrderDesc()
         .findAll();
 
@@ -73,7 +72,6 @@ class _NoteListState extends State<NoteList> {
     final fetchedUnpinnedNotes = await isar.notes
         .filter()
         .pinnedEqualTo(false)
-        .editsLengthEqualTo(0)
         .sortByOrderDesc()
         .findAll();
 
@@ -191,13 +189,10 @@ class _NoteListState extends State<NoteList> {
                       childAspectRatio: (itemWidth / itemHeight),
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
-                      onReorder: (oldIndex, newIndex) {
-                        // Handle reorder logic here
-                      },
+                      onReorder: (oldIndex, newIndex) {},
                       children: pinnedNotes.map((note) {
                         return NoteCard(
-                          key: ValueKey(
-                              note.id), // Ensure each note has a unique key
+                          key: ValueKey(note.id),
                           note: note,
                           deleteNote: _deleteNote,
                           togglePinnedStatus: togglePinnedStatus,
@@ -226,13 +221,10 @@ class _NoteListState extends State<NoteList> {
                       childAspectRatio: (itemWidth / itemHeight),
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
-                      onReorder: (oldIndex, newIndex) {
-                        // Handle reorder logic here
-                      },
+                      onReorder: (oldIndex, newIndex) {},
                       children: unpinnedNotes.map((note) {
                         return NoteCard(
-                          key: ValueKey(
-                              note.id), // Ensure each note has a unique key
+                          key: ValueKey(note.id),
                           note: note,
                           deleteNote: _deleteNote,
                           togglePinnedStatus: togglePinnedStatus,

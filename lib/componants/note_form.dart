@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
+import 'package:notes/data/edit_model.dart';
 import 'package:notes/data/note_model.dart';
 import 'package:provider/provider.dart';
 
@@ -11,30 +12,47 @@ class NoteForm extends StatefulWidget {
   final bool isNotePinned;
   final VoidCallback? togglePinnedStatus;
   final Note? note;
+  final Edit? edit;
+  final void Function(Edit)? changeEdit;
 
-  const NoteForm(
-      {super.key,
-      required this.controller,
-      required this.isNotePinned,
-      required this.togglePinnedStatus,
-      this.note});
+  const NoteForm({
+    super.key,
+    required this.controller,
+    required this.isNotePinned,
+    required this.togglePinnedStatus,
+    this.note,
+    this.edit,
+    this.changeEdit,
+  });
 
   @override
   State<NoteForm> createState() => _NoteFormState();
 }
 
 class _NoteFormState extends State<NoteForm> {
+  late Isar isar;
   bool isHeadingSelected = true;
   bool _isNotePinned = false;
+  bool undoExists = false;
+  bool redoExists = false;
+  Note? activeNote;
 
   @override
   void initState() {
     super.initState();
+    isar = Provider.of<Isar>(context, listen: false);
+
     _isNotePinned = widget.isNotePinned;
+
+    if (widget.note != null) {
+      setState(() {
+        activeNote = widget.note;
+      });
+      _setUndoRedoExists(widget.note!);
+    }
   }
 
-  void _createOrUpdateNote() {
-    final isar = Provider.of<Isar>(context, listen: false);
+  void _createOrUpdateNote() async {
     final jsonEncodedData =
         jsonEncode(widget.controller.document.toDelta().toJson());
     final contentInPlainText = widget.controller.document.toPlainText();
@@ -42,17 +60,33 @@ class _NoteFormState extends State<NoteForm> {
     if (widget.note == null) {
       createNote(isar, jsonEncodedData, contentInPlainText, _isNotePinned);
     } else {
-      updateNote(isar, widget.note!, jsonEncodedData, contentInPlainText,
-          _isNotePinned);
+      final parent = widget.note!;
+      final newEdit = await updateNote(
+          isar, parent, jsonEncodedData, contentInPlainText, _isNotePinned);
+      widget.changeEdit!(newEdit);
     }
 
-    widget.controller.clear();
-    Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
-  void _undo() {}
+  void _undo() {
+    if (!undoExists) return;
+  }
 
-  void _redo() {}
+  void _redo() {
+    if (!redoExists) return;
+  }
+
+  void _setUndoRedoExists(Note note) {
+    // if (note.parent.value != null) {
+    //   undoExists = true;
+    // }
+    // if (note.edits.isNotEmpty) {
+    //   redoExists = true;
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +124,18 @@ class _NoteFormState extends State<NoteForm> {
                     ),
                     if (widget.note != null) ...[
                       QuillToolbarCustomButtonOptions(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.undo,
+                          color: !undoExists ? Colors.grey[700] : null,
                         ),
                         tooltip: 'Undo',
                         onPressed: _undo,
                       ),
                       QuillToolbarCustomButtonOptions(
-                        icon: const Icon(Icons.redo),
+                        icon: Icon(
+                          Icons.redo,
+                          color: !redoExists ? Colors.grey[700] : null,
+                        ),
                         tooltip: 'Redo',
                         onPressed: _redo,
                       ),
