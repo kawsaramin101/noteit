@@ -97,7 +97,6 @@ class _NoteCardState extends State<NoteCard> {
   }
 
   void changeEdit(Edit edited) {
-    debugPrint("run");
     setState(() {
       edit = edited;
     });

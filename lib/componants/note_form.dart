@@ -35,27 +35,37 @@ class _NoteFormState extends State<NoteForm> {
   bool _isNotePinned = false;
   bool undoExists = false;
   bool redoExists = false;
-  Note? activeNote;
+
+  late QuillController _controller;
+
+  Edit? currentEdit;
 
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
     isar = Provider.of<Isar>(context, listen: false);
+
+    if (widget.edit != null) {
+      currentEdit = widget.edit;
+    }
 
     _isNotePinned = widget.isNotePinned;
 
     if (widget.note != null) {
-      setState(() {
-        activeNote = widget.note;
-      });
-      _setUndoRedoExists(widget.note!);
+      _setUpController(widget.edit!);
+      _setUndoRedoExists();
     }
   }
 
+  void _setUpController(Edit edit) {
+    final json = jsonDecode(edit.content);
+    _controller.document = Document.fromJson(json);
+  }
+
   void _createOrUpdateNote() async {
-    final jsonEncodedData =
-        jsonEncode(widget.controller.document.toDelta().toJson());
-    final contentInPlainText = widget.controller.document.toPlainText();
+    final jsonEncodedData = jsonEncode(_controller.document.toDelta().toJson());
+    final contentInPlainText = _controller.document.toPlainText();
 
     if (widget.note == null) {
       createNote(isar, jsonEncodedData, contentInPlainText, _isNotePinned);
@@ -71,21 +81,71 @@ class _NoteFormState extends State<NoteForm> {
     }
   }
 
-  void _undo() {
+  void _undo() async {
     if (!undoExists) return;
+    final previousEdit = await isar.edits
+        .where(sort: Sort.desc)
+        .idLessThan(currentEdit!.id)
+        .filter()
+        .note((q) => q.idEqualTo(widget.note!.id))
+        .findFirst();
+
+    if (previousEdit != null) {
+      _setUpController(previousEdit);
+      currentEdit = previousEdit;
+    }
+    _setUndoRedoExists();
   }
 
-  void _redo() {
+  void _redo() async {
     if (!redoExists) return;
+    final nextEdit = await isar.edits
+        .where(sort: Sort.asc)
+        .idGreaterThan(currentEdit!.id)
+        .filter()
+        .note((q) => q.idEqualTo(widget.note!.id))
+        .findFirst();
+
+    if (nextEdit != null) {
+      currentEdit = nextEdit;
+      _setUpController(nextEdit);
+    }
+
+    _setUndoRedoExists();
   }
 
-  void _setUndoRedoExists(Note note) {
-    // if (note.parent.value != null) {
-    //   undoExists = true;
-    // }
-    // if (note.edits.isNotEmpty) {
-    //   redoExists = true;
-    // }
+  void _setUndoRedoExists() async {
+    final previousEdit = await isar.edits
+        .where(sort: Sort.desc)
+        .idLessThan(currentEdit!.id)
+        .filter()
+        .note((q) => q.idEqualTo(widget.note!.id))
+        .findFirst();
+    if (previousEdit != null) {
+      setState(() {
+        undoExists = true;
+      });
+    } else {
+      setState(() {
+        undoExists = false;
+      });
+    }
+
+    final nextEdit = await isar.edits
+        .where(sort: Sort.asc)
+        .idGreaterThan(currentEdit!.id)
+        .filter()
+        .note((q) => q.idEqualTo(widget.note!.id))
+        .findFirst();
+    if (nextEdit != null) {
+      setState(() {
+        redoExists = true;
+      });
+    } else {
+      setState(() {
+        redoExists = false;
+      });
+    }
   }
 
   @override
@@ -110,15 +170,15 @@ class _NoteFormState extends State<NoteForm> {
                       icon: const HIcon(),
                       tooltip: 'Heading',
                       onPressed: () {
-                        final currentHeading = widget.controller
+                        final currentHeading = _controller
                             .getSelectionStyle()
                             .attributes[Attribute.h3.key];
 
                         if (currentHeading != null) {
-                          widget.controller.formatSelection(
+                          _controller.formatSelection(
                               Attribute.clone(Attribute.h3, null));
                         } else {
-                          widget.controller.formatSelection(Attribute.h3);
+                          _controller.formatSelection(Attribute.h3);
                         }
                       },
                     ),
@@ -155,7 +215,7 @@ class _NoteFormState extends State<NoteForm> {
                           widget.togglePinnedStatus!();
                         })
                   ],
-                  controller: widget.controller,
+                  controller: _controller,
                   sharedConfigurations: const QuillSharedConfigurations(),
                   multiRowsDisplay: false,
                   showHeaderStyle: false,
@@ -200,7 +260,7 @@ class _NoteFormState extends State<NoteForm> {
                 child: QuillEditor.basic(
                   configurations: QuillEditorConfigurations(
                     autoFocus: true,
-                    controller: widget.controller,
+                    controller: _controller,
                     sharedConfigurations: const QuillSharedConfigurations(
                         dialogBarrierColor: Colors.white),
                   ),
