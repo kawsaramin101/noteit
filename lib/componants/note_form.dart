@@ -76,6 +76,8 @@ class _NoteFormState extends State<NoteForm> {
       widget.changeEdit!(newEdit);
     }
 
+    _controller.clear();
+    widget.controller.clear();
     if (mounted) {
       Navigator.of(context).pop();
     }

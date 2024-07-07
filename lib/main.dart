@@ -27,7 +27,6 @@ void main() async {
   //       -pinned notes?
   // TODO: implement order changing when pining/unpinning
   // TODO: Delete parent and edits after deleting a note
-  // TODO: undo, redo
 
   runApp(MainWidget(
     isar: isar,

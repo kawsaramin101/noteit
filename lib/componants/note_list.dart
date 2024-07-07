@@ -170,25 +170,27 @@ class _NoteListState extends State<NoteList> {
             ),
           )
         : Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (pinnedNotes.isNotEmpty) ...[
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                    child: Text(
-                      'Pinned Notes',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (pinnedNotes.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                      child: Text(
+                        'Pinned Notes',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: ReorderableGridView.count(
+                    ReorderableGridView.count(
                       padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                       crossAxisCount: crossAxisCount,
+                      physics: const NeverScrollableScrollPhysics(),
                       childAspectRatio: (itemWidth / itemHeight),
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
+                      shrinkWrap: true,
                       onReorder: (oldIndex, newIndex) {},
                       children: pinnedNotes.map((note) {
                         return NoteCard(
@@ -199,28 +201,28 @@ class _NoteListState extends State<NoteList> {
                         );
                       }).toList(),
                     ),
-                  ),
-                ],
-                const SizedBox(
-                  height: 14.0,
-                ),
-                if (unpinnedNotes.isNotEmpty) ...[
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                    child: Text(
-                      'All Notes',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(
+                      height: 14.0,
+                    ),
+                  ],
+                  if (unpinnedNotes.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                      child: Text(
+                        'All Notes',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: ReorderableGridView.count(
+                    ReorderableGridView.count(
                       padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                       crossAxisCount: crossAxisCount,
+                      physics: const NeverScrollableScrollPhysics(),
                       childAspectRatio: (itemWidth / itemHeight),
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
+                      shrinkWrap: true,
                       onReorder: (oldIndex, newIndex) {},
                       children: unpinnedNotes.map((note) {
                         return NoteCard(
@@ -231,12 +233,12 @@ class _NoteListState extends State<NoteList> {
                         );
                       }).toList(),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 14.0,
-                  )
+                    const SizedBox(
+                      height: 14.0,
+                    )
+                  ],
                 ],
-              ],
+              ),
             ),
           );
   }

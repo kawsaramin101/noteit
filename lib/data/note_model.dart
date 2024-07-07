@@ -51,8 +51,6 @@ Future<Note> createNote(
 
 Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
     String contentInPlainText, bool pinned) async {
-  // await createNote(isar, contentInJson, contentInPlainText, pinned,
-  //     parentNote: note);
   final newEdit = Edit()
     ..content = contentInJson
     ..createdAt = DateTime.now()
@@ -68,4 +66,14 @@ Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
   });
 
   return newEdit;
+}
+
+Future<void> deleteNote(Isar isar, int noteId) async {}
+
+Future<void> toggleNotePinned(Isar isar, Note note) async {
+  note.pinned = !note.pinned;
+
+  await isar.writeTxn(() async {
+    await isar.notes.put(note);
+  });
 }

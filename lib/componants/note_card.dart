@@ -124,7 +124,7 @@ class _NoteCardState extends State<NoteCard> {
           });
         },
         child: SizedBox(
-          height: 250.0,
+          // height: 250.0,
           child: Column(
             children: [
               SizedBox(
