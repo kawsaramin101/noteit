@@ -45,12 +45,11 @@ class _NoteFormState extends State<NoteForm> {
     super.initState();
     _controller = widget.controller;
     isar = Provider.of<Isar>(context, listen: false);
+    _isNotePinned = widget.isNotePinned;
 
     if (widget.edit != null) {
       currentEdit = widget.edit;
     }
-
-    _isNotePinned = widget.isNotePinned;
 
     if (widget.note != null) {
       _setUpController(widget.edit!);
@@ -74,6 +73,9 @@ class _NoteFormState extends State<NoteForm> {
       final newEdit = await updateNote(
           isar, parent, jsonEncodedData, contentInPlainText, _isNotePinned);
       widget.changeEdit!(newEdit);
+      if (_isNotePinned != widget.isNotePinned) {
+        widget.togglePinnedStatus!();
+      }
     }
 
     _controller.clear();
@@ -214,7 +216,6 @@ class _NoteFormState extends State<NoteForm> {
                           setState(() {
                             _isNotePinned = !_isNotePinned;
                           });
-                          widget.togglePinnedStatus!();
                         })
                   ],
                   controller: _controller,

@@ -11,13 +11,11 @@ import 'package:provider/provider.dart';
 class NoteCard extends StatefulWidget {
   final Note note;
   final Function deleteNote;
-  final Function togglePinnedStatus;
 
   const NoteCard({
     super.key,
     required this.note,
     required this.deleteNote,
-    required this.togglePinnedStatus,
   });
 
   @override
@@ -62,16 +60,22 @@ class _NoteCardState extends State<NoteCard> {
     _editingController.document = Document.fromJson(json);
   }
 
+  void togglePinnedStatus() async {
+    widget.note.pinned = !widget.note.pinned;
+    await isar.writeTxn(() async {
+      await isar.notes.put(widget.note);
+    });
+  }
+
   void showNoteEditForm() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return NoteForm(
-            controller: _editingController,
-            isNotePinned: _isNotePinned,
-            togglePinnedStatus: () {
-              widget.togglePinnedStatus();
-            });
+          controller: _editingController,
+          isNotePinned: _isNotePinned,
+          togglePinnedStatus: togglePinnedStatus,
+        );
       },
     );
   }
@@ -87,6 +91,7 @@ class _NoteCardState extends State<NoteCard> {
             setState(() {
               _isNotePinned = !_isNotePinned;
             });
+            togglePinnedStatus();
           },
           note: widget.note,
           edit: edit,
@@ -152,7 +157,7 @@ class _NoteCardState extends State<NoteCard> {
                             visible: _isHovered,
                             child: IconButton(
                               onPressed: () {
-                                widget.togglePinnedStatus(widget.note.id);
+                                togglePinnedStatus();
                               },
                               icon: Icon(
                                 widget.note.pinned

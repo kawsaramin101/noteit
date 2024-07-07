@@ -84,16 +84,6 @@ class _NoteListState extends State<NoteList> {
     showDeleteConfirmationDialog(context, id);
   }
 
-  void togglePinnedStatus(int id) async {
-    final note = await isar.notes.get(id);
-    if (note != null) {
-      note.pinned = !note.pinned;
-      await isar.writeTxn(() async {
-        await isar.notes.put(note);
-      });
-    }
-  }
-
   Future<void> showDeleteConfirmationDialog(BuildContext context, Id id) async {
     return showDialog<void>(
       context: context,
@@ -191,13 +181,14 @@ class _NoteListState extends State<NoteList> {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                       shrinkWrap: true,
-                      onReorder: (oldIndex, newIndex) {},
+                      onReorder: (oldIndex, newIndex) {
+                        debugPrint("$oldIndex $newIndex");
+                      },
                       children: pinnedNotes.map((note) {
                         return NoteCard(
                           key: ValueKey(note.id),
                           note: note,
                           deleteNote: _deleteNote,
-                          togglePinnedStatus: togglePinnedStatus,
                         );
                       }).toList(),
                     ),
@@ -223,13 +214,14 @@ class _NoteListState extends State<NoteList> {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                       shrinkWrap: true,
-                      onReorder: (oldIndex, newIndex) {},
+                      onReorder: (oldIndex, newIndex) {
+                        debugPrint("$oldIndex $newIndex");
+                      },
                       children: unpinnedNotes.map((note) {
                         return NoteCard(
                           key: ValueKey(note.id),
                           note: note,
                           deleteNote: _deleteNote,
-                          togglePinnedStatus: togglePinnedStatus,
                         );
                       }).toList(),
                     ),
