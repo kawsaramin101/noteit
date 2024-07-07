@@ -27,7 +27,7 @@ void main() async {
   //       -pinned notes?
   // TODO: implement order changing when pining/unpinning
   // TODO: Delete parent and edits after deleting a note
-  // TODO: if note is not changed, it created a separte copy on save, fix it
+  // TODO: undo, redo
 
   runApp(MainWidget(
     isar: isar,
@@ -74,11 +74,11 @@ class MainWidget extends StatelessWidget {
 }
 
 ThemeData _buildTheme(brightness) {
-  const fontWeight = FontWeight.normal;
+  const fontWeight = FontWeight.w300;
 
   return ThemeData(
       brightness: brightness,
-      fontFamily: 'RobotoMono',
+      fontFamily: 'NotoSans',
       splashFactory: NoSplash.splashFactory,
       textTheme: const TextTheme(
         displayLarge: TextStyle(fontWeight: fontWeight),

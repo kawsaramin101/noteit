@@ -66,11 +66,9 @@ class _BaseLayoutState extends State<BaseLayout> {
       body: WindowBorder(
         color: borderColor!,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 40.0,
+              height: 46.0,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

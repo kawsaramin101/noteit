@@ -117,13 +117,15 @@ class _NoteCardState extends State<NoteCard> {
   Widget build(BuildContext context) {
     return Card(
       color: const Color.fromARGB(255, 40, 43, 48),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), // Optional: for rounded corners
-        side: BorderSide(
-          color: Colors.grey[800]!, // Your border color
-          width: 0.5, // Border width
-        ),
-      ),
+
+      // THis causes problem with windows titlebar
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(8), // Optional: for rounded corners
+      //   side: BorderSide(
+      //     color: Colors.grey[800]!, // Your border color
+      //     width: 0.5, // Border width
+      //   ),
+      // ),
       child: MouseRegion(
         onEnter: (_) {
           setState(() {

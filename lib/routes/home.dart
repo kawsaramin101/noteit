@@ -11,9 +11,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF1b1e20),
-      child: const Column(
+    return const Scaffold(
+      backgroundColor: Color(0xFF1b1e20),
+      body: Column(
         children: <Widget>[
           SizedBox(
             height: 12.0,
