@@ -27,6 +27,7 @@ void main() async {
   //       -pinned notes?
   // TODO: implement order changing when pining/unpinning
   // TODO: Delete parent and edits after deleting a note
+  // TODO: if note is not changed, it created a separte copy on save, fix it
 
   runApp(MainWidget(
     isar: isar,

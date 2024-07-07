@@ -66,8 +66,9 @@ class _BaseLayoutState extends State<BaseLayout> {
         color: borderColor!,
         child: Column(
           children: [
-            SizedBox(
-              height: 46.0,
+            Container(
+              color: const Color(0xFF1b1e20),
+              height: 40.0,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
