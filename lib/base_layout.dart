@@ -62,12 +62,14 @@ class _BaseLayoutState extends State<BaseLayout> {
     );
 
     return Scaffold(
+      backgroundColor: const Color(0xFF1b1e20),
       body: WindowBorder(
         color: borderColor!,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              color: const Color(0xFF1b1e20),
+            SizedBox(
               height: 40.0,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

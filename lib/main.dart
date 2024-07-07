@@ -74,11 +74,11 @@ class MainWidget extends StatelessWidget {
 }
 
 ThemeData _buildTheme(brightness) {
-  const fontWeight = FontWeight.w300;
+  const fontWeight = FontWeight.normal;
 
   return ThemeData(
       brightness: brightness,
-      fontFamily: 'NotoSans',
+      fontFamily: 'RobotoMono',
       splashFactory: NoSplash.splashFactory,
       textTheme: const TextTheme(
         displayLarge: TextStyle(fontWeight: fontWeight),
