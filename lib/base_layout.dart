@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:notes/notifiers/search_notifiers.dart';
 import 'package:notes/routes/home.dart';
 import 'package:notes/componants/note_form.dart';
+import 'package:provider/provider.dart';
 import 'package:yaru/yaru.dart';
 
 class BaseLayout extends StatefulWidget {
@@ -12,6 +16,7 @@ class BaseLayout extends StatefulWidget {
 }
 
 class _BaseLayoutState extends State<BaseLayout> {
+  Timer? _debounce;
   final _quillController = QuillController.basic();
 
   bool _isNotePinned = false;
@@ -35,20 +40,59 @@ class _BaseLayoutState extends State<BaseLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
+
+    void onSearchChanged(String newValue) {
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        searchNotifierProvider.valueNotifier.value = newValue;
+      });
+    }
+
     return Scaffold(
       appBar: YaruWindowTitleBar(
-        backgroundColor: const Color(0xFF18191a),
-        leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            YaruIcons.menu,
-          ),
-        ),
-        title: const SizedBox(
+        backgroundColor: const Color(0xFF28292A),
+        leading: MenuAnchor(
+            builder: (BuildContext context, MenuController controller,
+                Widget? child) {
+              return YaruIconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(
+                  YaruIcons.menu,
+                ),
+                tooltip: 'Show menu',
+              );
+            },
+            menuChildren: [
+              MenuItemButton(
+                style: ButtonStyle(
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
+                ),
+                onPressed: () => {},
+                leadingIcon: const Icon(YaruIcons.settings),
+                child: const Text('Settings'),
+              ),
+              MenuItemButton(
+                style: ButtonStyle(
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
+                ),
+                onPressed: () => {},
+                leadingIcon: const Icon(YaruIcons.information),
+                child: const Text('About'),
+              ),
+            ]),
+        title: SizedBox(
           width: 350,
           height: 34.0,
           child: TextField(
-            decoration: InputDecoration(
+            onChanged: onSearchChanged,
+            decoration: const InputDecoration(
               filled: true,
               hintText: 'Search',
               prefixIcon: Icon(
@@ -63,7 +107,7 @@ class _BaseLayoutState extends State<BaseLayout> {
           ),
         ),
         actions: [
-          IconButton(
+          YaruIconButton(
             icon: const Icon(YaruIcons.plus),
             onPressed: showNoteForm,
           ),

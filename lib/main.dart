@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/notifiers/search_notifiers.dart';
 
 import 'package:yaru/yaru.dart';
 
@@ -22,38 +23,31 @@ void main() async {
   // await clearDatabase(isar);
 
   // TODO: Keyboard shortcut to save a note
-  // TODO: implement search
   // TODO: add settings page
   //       -light mode/dark mode/system
   //       -title field
   //       -pinned notes?
   // TODO: implement order changing when pining/unpinning
   // TODO: Delete parent and edits after deleting a note
+  // TODO: app crashes on quill paste
 
   runApp(MainWidget(
     isar: isar,
   ));
-
-  // doWhenWindowReady(() {
-  //   const initialSize = Size(1200, 750);
-  //   appWindow.minSize = initialSize;
-  //   appWindow.size = initialSize;
-  //   appWindow.alignment = Alignment.center;
-  //   appWindow.show();
-  // });
 }
 
 class MainWidget extends StatelessWidget {
   final Isar isar;
   const MainWidget({super.key, required this.isar});
 
-  // Color? textColor = Colors.blueGrey[100];
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<Isar>.value(value: isar),
+        Provider<SearchNotifierProvider>(
+          create: (_) => SearchNotifierProvider(),
+        ),
       ],
       child: YaruTheme(
           data: const YaruThemeData(
@@ -66,8 +60,6 @@ class MainWidget extends StatelessWidget {
               home: const BaseLayout(),
               theme: _buildTheme(lightTheme, Brightness.light),
               darkTheme: _buildTheme(darkTheme, Brightness.dark),
-              // theme: lightTheme,
-              // darkTheme: darkTheme,
               themeMode: ThemeMode.dark,
               debugShowCheckedModeBanner: false,
               builder: (context, child) {
@@ -90,7 +82,9 @@ ThemeData _buildTheme(ThemeData base, Brightness brightness) {
   return base.copyWith(
     brightness: brightness,
     splashFactory: NoSplash.splashFactory,
-    textTheme: Typography().white.apply(fontFamily: fontFamily),
+    textTheme: Typography().white.apply(
+          fontFamily: fontFamily,
+        ),
   );
 }
 

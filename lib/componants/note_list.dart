@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
-import 'package:notes/componants/note_card.dart';
+import 'package:notes/componants/note_list_section.dart';
+import 'package:notes/data/edit_model.dart';
 
 import 'package:notes/data/note_model.dart';
+import 'package:notes/notifiers/search_notifiers.dart';
 import 'package:provider/provider.dart';
-
-import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class NoteList extends StatefulWidget {
   const NoteList({super.key});
@@ -18,70 +18,75 @@ class NoteList extends StatefulWidget {
 
 class _NoteListState extends State<NoteList> {
   late Isar isar;
-  late Stream<void>? pinnedNotesStream;
-  late Stream<void>? unpinnedNotesStream;
 
-  StreamSubscription<void>? pinnedNotesSubscription;
-  StreamSubscription<void>? unpinnedNotesSubscription;
+  late Stream<void>? notesStream;
 
+  StreamSubscription<void>? notesSubscription;
+
+  List<Note> notes = [];
   List<Note> pinnedNotes = [];
   List<Note> unpinnedNotes = [];
+  List<Note> searchedNotes = [];
+
+  String _searchTerm = "";
 
   @override
   void initState() {
     super.initState();
     isar = Provider.of<Isar>(context, listen: false);
-    initializeIsar();
+    fetchNotes();
     setupWatcher();
   }
 
-  Future<void> initializeIsar() async {
-    fetchPinnedNotes();
-    fetchUnpinnedNotes();
-  }
-
   void setupWatcher() {
-    pinnedNotesStream =
-        isar.notes.filter().pinnedEqualTo(true).sortByOrderDesc().watchLazy();
+    notesStream = isar.notes.watchLazy();
 
-    unpinnedNotesStream =
-        isar.notes.filter().pinnedEqualTo(false).sortByOrderDesc().watchLazy();
-
-    pinnedNotesSubscription = pinnedNotesStream?.listen((_) {
-      fetchPinnedNotes();
-    });
-
-    unpinnedNotesSubscription = unpinnedNotesStream?.listen((_) {
-      fetchUnpinnedNotes();
+    notesSubscription = notesStream?.listen((_) {
+      fetchNotes();
     });
   }
 
-  void fetchPinnedNotes() async {
-    final fetchedPinnedNotes = await isar.notes
-        .filter()
-        .pinnedEqualTo(true)
-        .sortByOrderDesc()
-        .findAll();
-
+  void fetchNotes() async {
+    final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
     setState(() {
-      pinnedNotes = fetchedPinnedNotes;
-    });
-  }
-
-  void fetchUnpinnedNotes() async {
-    final fetchedUnpinnedNotes = await isar.notes
-        .filter()
-        .pinnedEqualTo(false)
-        .sortByOrderDesc()
-        .findAll();
-
-    setState(() {
-      unpinnedNotes = fetchedUnpinnedNotes;
+      notes = fetchedNotes;
     });
   }
 
   void _deleteNote(Id id) {
     showDeleteConfirmationDialog(context, id);
+  }
+
+  void searchNotes(String searchTerm) async {
+    if (searchTerm.isNotEmpty) {
+      final queryParts = searchTerm.toLowerCase().split(' ');
+
+      List<Note> searchResults = [];
+      for (var note in notes) {
+        final latestEdit = await isar.edits
+            .where(sort: Sort.desc)
+            .filter()
+            .note((q) => q.idEqualTo(note.id))
+            .findFirst();
+
+        if (latestEdit != null) {
+          final containsAllParts = queryParts.every((part) => latestEdit
+              .contentWords
+              .any((word) => word.toLowerCase().contains(part)));
+          if (containsAllParts) {
+            searchResults.add(note);
+          }
+        }
+      }
+
+      setState(() {
+        searchedNotes = searchResults;
+      });
+    } else {
+      setState(() {
+        searchedNotes = [];
+      });
+    }
   }
 
   Future<void> showDeleteConfirmationDialog(BuildContext context, Id id) async {
@@ -141,100 +146,67 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
+    final valueNotifier = searchNotifierProvider.valueNotifier;
 
-    int crossAxisCount = 3;
+    valueNotifier.addListener(() {
+      if (valueNotifier.value != null && valueNotifier.value != "") {
+        searchNotes(valueNotifier.value!);
+      }
+      setState(() {
+        _searchTerm = valueNotifier.value!;
+      });
+    });
 
-    final double itemWidth =
-        (size.width - (crossAxisCount - 1) * 10) / crossAxisCount;
-    const double itemHeight = 250.0;
+    pinnedNotes = notes.where((note) => note.pinned).toList();
+    unpinnedNotes = notes.where((note) => !note.pinned).toList();
 
-    return (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
-        ? const Center(
-            child: Text(
-              'No notes yet.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
-            ),
-          )
-        : Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (pinnedNotes.isNotEmpty) ...[
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                        child: Text(
-                          'Pinned Notes',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      ReorderableGridView.count(
-                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                        crossAxisCount: crossAxisCount,
-                        physics: const ClampingScrollPhysics(),
-                        childAspectRatio: (itemWidth / itemHeight),
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        shrinkWrap: true,
-                        onReorder: (oldIndex, newIndex) {
-                          debugPrint("$oldIndex $newIndex");
-                        },
-                        children: pinnedNotes.map((note) {
-                          return NoteCard(
-                            key: ValueKey(note),
-                            note: note,
-                            deleteNote: _deleteNote,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(
-                        height: 14.0,
-                      ),
-                    ],
-                    if (unpinnedNotes.isNotEmpty) ...[
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                        child: Text(
-                          'All Notes',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      ReorderableGridView.count(
-                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                        crossAxisCount: crossAxisCount,
-                        physics: const ClampingScrollPhysics(),
-                        childAspectRatio: (itemWidth / itemHeight),
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        shrinkWrap: true,
-                        onReorder: (oldIndex, newIndex) {
-                          debugPrint("$oldIndex $newIndex");
-                        },
-                        children: unpinnedNotes.map((note) {
-                          return NoteCard(
-                            key: ValueKey(note),
-                            note: note,
-                            deleteNote: _deleteNote,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(
-                        height: 14.0,
-                      )
-                    ],
-                  ],
+    return Expanded(
+      child: (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
+          ? const Center(
+              child: Text(
+                'No notes yet.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
                 ),
               ),
+            )
+          : SingleChildScrollView(
+              child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_searchTerm.isEmpty) ...[
+                        if (pinnedNotes.isNotEmpty)
+                          NoteListSection(
+                            title: "Pinned Notes",
+                            notes: pinnedNotes,
+                            deleteNote: _deleteNote,
+                            onReorder: (oldIndex, newIndex) {},
+                            shouldReorder: true,
+                          ),
+                        if (unpinnedNotes.isNotEmpty)
+                          NoteListSection(
+                            title: "All Notes",
+                            notes: unpinnedNotes,
+                            deleteNote: _deleteNote,
+                            onReorder: (oldIndex, newIndex) {},
+                            shouldReorder: true,
+                          ),
+                      ] else ...[
+                        NoteListSection(
+                          title: "Search result",
+                          notes: searchedNotes,
+                          deleteNote: _deleteNote,
+                          shouldReorder: false,
+                        ),
+                      ]
+                    ],
+                  )),
             ),
-          );
+    );
   }
 }

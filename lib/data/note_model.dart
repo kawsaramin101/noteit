@@ -30,7 +30,7 @@ Future<Note> createNote(
   final newEdit = Edit()
     ..content = contentInJson
     ..createdAt = DateTime.now()
-    ..contentWords = contentInPlainText.split(' ');
+    ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'));
 
   note.edits.add(newEdit);
   newEdit.note.value = note;
@@ -54,7 +54,7 @@ Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
   final newEdit = Edit()
     ..content = contentInJson
     ..createdAt = DateTime.now()
-    ..contentWords = contentInPlainText.split(' ')
+    ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'))
     ..note.value = note;
 
   note.edits.add(newEdit);

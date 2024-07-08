@@ -116,7 +116,7 @@ class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF242526),
+      color: const Color(0xFF2b2b2b),
 
       // This causes problem with windows titlebar
       // shape: RoundedRectangleBorder(
@@ -152,7 +152,7 @@ class _NoteCardState extends State<NoteCard> {
                       child: Text(
                         edit != null ? formatDate(edit!.createdAt) : "Loading",
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: Colors.grey[200],
                           fontSize: 12.0,
                         ),
                       ),
@@ -219,7 +219,7 @@ class _NoteCardState extends State<NoteCard> {
                 child: Center(
                   child: SingleChildScrollView(
                     child: Container(
-                      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                       child: QuillEditor.basic(
                         configurations: QuillEditorConfigurations(
                           controller: _controller,

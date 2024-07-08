@@ -12,7 +12,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Color(0xFF18191a),
+      backgroundColor: Color(0xFF1E1F20),
       body: Column(
         children: <Widget>[
           NoteList(),

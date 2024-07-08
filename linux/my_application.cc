@@ -61,6 +61,12 @@ static void my_application_activate(GApplication* application) {
   // auto bdw = bitsdojo_window_from(window);        
   // bdw->setCustomFrame(true);     
 
+    GdkPixbuf* icon = gdk_pixbuf_new_from_file("/home/mahin/Desktop/flutter/notes/linux/assests/writing.png", NULL);
+  if (icon != NULL) {
+    gtk_window_set_icon(GTK_WINDOW(window), icon);
+    g_object_unref(icon);
+  }
+
   gtk_window_set_default_size(window, 1200, 750);
   gtk_widget_show(GTK_WIDGET(window));
 
