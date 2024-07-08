@@ -198,7 +198,7 @@ class _NoteListState extends State<NoteList> {
                           ),
                       ] else ...[
                         NoteListSection(
-                          title: "Search result",
+                          title: "Search result for \"$_searchTerm\"",
                           notes: searchedNotes,
                           deleteNote: _deleteNote,
                           shouldReorder: false,
