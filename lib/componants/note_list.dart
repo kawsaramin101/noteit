@@ -161,75 +161,78 @@ class _NoteListState extends State<NoteList> {
           )
         : Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (pinnedNotes.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                      child: Text(
-                        'Pinned Notes',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    ReorderableGridView.count(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                      crossAxisCount: crossAxisCount,
-                      physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: (itemWidth / itemHeight),
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      shrinkWrap: true,
-                      onReorder: (oldIndex, newIndex) {
-                        debugPrint("$oldIndex $newIndex");
-                      },
-                      children: pinnedNotes.map((note) {
-                        return NoteCard(
-                          key: ValueKey(note.id),
-                          note: note,
-                          deleteNote: _deleteNote,
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(
-                      height: 14.0,
-                    ),
-                  ],
-                  if (unpinnedNotes.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                      child: Text(
-                        'All Notes',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (pinnedNotes.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                        child: Text(
+                          'Pinned Notes',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    ReorderableGridView.count(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                      crossAxisCount: crossAxisCount,
-                      physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: (itemWidth / itemHeight),
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      shrinkWrap: true,
-                      onReorder: (oldIndex, newIndex) {
-                        debugPrint("$oldIndex $newIndex");
-                      },
-                      children: unpinnedNotes.map((note) {
-                        return NoteCard(
-                          key: ValueKey(note.id),
-                          note: note,
-                          deleteNote: _deleteNote,
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(
-                      height: 14.0,
-                    )
+                      ReorderableGridView.count(
+                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                        crossAxisCount: crossAxisCount,
+                        physics: const ClampingScrollPhysics(),
+                        childAspectRatio: (itemWidth / itemHeight),
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        shrinkWrap: true,
+                        onReorder: (oldIndex, newIndex) {
+                          debugPrint("$oldIndex $newIndex");
+                        },
+                        children: pinnedNotes.map((note) {
+                          return NoteCard(
+                            key: ValueKey(note),
+                            note: note,
+                            deleteNote: _deleteNote,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(
+                        height: 14.0,
+                      ),
+                    ],
+                    if (unpinnedNotes.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                        child: Text(
+                          'All Notes',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      ReorderableGridView.count(
+                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                        crossAxisCount: crossAxisCount,
+                        physics: const ClampingScrollPhysics(),
+                        childAspectRatio: (itemWidth / itemHeight),
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        shrinkWrap: true,
+                        onReorder: (oldIndex, newIndex) {
+                          debugPrint("$oldIndex $newIndex");
+                        },
+                        children: unpinnedNotes.map((note) {
+                          return NoteCard(
+                            key: ValueKey(note),
+                            note: note,
+                            deleteNote: _deleteNote,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(
+                        height: 14.0,
+                      )
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           );

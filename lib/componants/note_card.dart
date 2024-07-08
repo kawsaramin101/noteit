@@ -116,9 +116,9 @@ class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 40, 43, 48),
+      color: const Color(0xFF242526),
 
-      // THis causes problem with windows titlebar
+      // This causes problem with windows titlebar
       // shape: RoundedRectangleBorder(
       //   borderRadius: BorderRadius.circular(8), // Optional: for rounded corners
       //   side: BorderSide(

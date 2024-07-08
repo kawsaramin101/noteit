@@ -1,79 +1,43 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:notes/componants/note_card.dart';
+// import 'package:notes/data/note_model.dart';
+// import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
-class NotesScreen extends StatelessWidget {
-  final List<int> pinnedNotes = List.generate(10, (index) => index);
-  final List<int> unpinnedNotes = List.generate(20, (index) => index);
-  final int crossAxisCount = 2;
-  final double itemWidth = 100;
-  final double itemHeight = 150;
+// class NotesScreen extends StatefulWidget {
+//   const NotesScreen({super.key});
 
-  NotesScreen({super.key});
+//   @override
+//   State<NotesScreen> createState() => _NotesScreenState();
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (pinnedNotes.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                child: Text(
-                  'Pinned Notes',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              GridView.count(
-                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: (itemWidth / itemHeight),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                children: pinnedNotes.map((note) {
-                  return Card(
-                    child: Center(child: Text('Item $note')),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(
-                height: 14.0,
-              ),
-            ],
-            if (unpinnedNotes.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
-                child: Text(
-                  'All Notes',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              GridView.count(
-                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: (itemWidth / itemHeight),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                children: unpinnedNotes.map((note) {
-                  return Card(
-                    child: Center(child: Text('Item $note')),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(
-                height: 14.0,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class _NotesScreenState extends State<NotesScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     final List<int> pinnedNotes = List.generate(10, (index) => index);
+//     const int crossAxisCount = 3;
+//     const double itemWidth = 50;
+//     const double itemHeight = 50;
+//     return Expanded(
+//       child: ReorderableGridView.count(
+//         padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+//         crossAxisCount: crossAxisCount,
+//         childAspectRatio: (itemWidth / itemHeight),
+//         mainAxisSpacing: 10,
+//         crossAxisSpacing: 10,
+//         onReorder: (oldIndex, newIndex) {
+//           setState(() {
+//             final item = pinnedNotes.removeAt(oldIndex);
+//             pinnedNotes.insert(newIndex, item);
+//           });
+//           debugPrint("$oldIndex $newIndex");
+//         },
+//         children: pinnedNotes.map((note) {
+//           return Card(
+//             key: ValueKey(note),
+//             child: Text("$note"),
+//           );
+//         }).toList(),
+//       ),
+//     );
+//   }
+// }
