@@ -27,7 +27,6 @@ void main() async {
   //       -light mode/dark mode/system
   //       -title field
   //       -pinned notes?
-  // TODO: Delete parent and edits after deleting a note
   // TODO: app crashes on quill paste
   // Colored note?
   // Labeled note?

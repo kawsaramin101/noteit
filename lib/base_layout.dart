@@ -56,8 +56,8 @@ class _BaseLayoutState extends State<BaseLayout> {
 
     return Scaffold(
       appBar: YaruWindowTitleBar(
+        titleSpacing: 0.0,
         backgroundColor: const Color(0xFF28292A),
-        // buttonPadding: EdgeInsetsGeometry.lerp(a, b, t),
         leading: MenuAnchor(
             builder: (BuildContext context, MenuController controller,
                 Widget? child) {
@@ -83,6 +83,14 @@ class _BaseLayoutState extends State<BaseLayout> {
                 onPressed: () => {},
                 leadingIcon: const Icon(YaruIcons.settings),
                 child: const Text('Settings'),
+              ),
+              MenuItemButton(
+                style: ButtonStyle(
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
+                ),
+                onPressed: () => {},
+                leadingIcon: const Icon(YaruIcons.keyboard_shortcuts),
+                child: const Text('Keyboard Shortcuts'),
               ),
               MenuItemButton(
                 style: ButtonStyle(
