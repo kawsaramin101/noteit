@@ -57,6 +57,7 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       appBar: YaruWindowTitleBar(
         backgroundColor: const Color(0xFF28292A),
+        // buttonPadding: EdgeInsetsGeometry.lerp(a, b, t),
         leading: MenuAnchor(
             builder: (BuildContext context, MenuController controller,
                 Widget? child) {
@@ -92,31 +93,38 @@ class _BaseLayoutState extends State<BaseLayout> {
                 child: const Text('About'),
               ),
             ]),
-        title: SizedBox(
-          width: 350,
-          height: 34.0,
-          child: TextField(
-            onChanged: onSearchChanged,
-            decoration: const InputDecoration(
-              filled: true,
-              hintText: 'Search',
-              prefixIcon: Icon(
-                YaruIcons.search,
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            YaruIconButton(
+              icon: const Icon(YaruIcons.plus),
+              onPressed: showNoteForm,
+              tooltip: "Create note",
             ),
-            textAlignVertical: TextAlignVertical.center,
-          ),
+            SizedBox(
+              width: 350,
+              height: 34.0,
+              child: TextField(
+                onChanged: onSearchChanged,
+                decoration: const InputDecoration(
+                  filled: true,
+                  hintText: 'Search',
+                  prefixIcon: Icon(
+                    YaruIcons.search,
+                  ),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                ),
+                textAlignVertical: TextAlignVertical.center,
+              ),
+            ),
+            const SizedBox(
+              width: 8.0,
+            ),
+          ],
         ),
-        actions: [
-          YaruIconButton(
-            icon: const Icon(YaruIcons.plus),
-            onPressed: showNoteForm,
-          ),
-        ],
       ),
       backgroundColor: const Color(0xFF18191a),
       body: Navigator(

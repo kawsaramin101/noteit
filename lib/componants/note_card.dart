@@ -67,19 +67,6 @@ class _NoteCardState extends State<NoteCard> {
     });
   }
 
-  void showNoteEditForm() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return NoteForm(
-          controller: _editingController,
-          isNotePinned: _isNotePinned,
-          togglePinnedStatus: togglePinnedStatus,
-        );
-      },
-    );
-  }
-
   Future<void> showEditDialog(BuildContext context) async {
     return showDialog(
       context: context,
@@ -166,7 +153,7 @@ class _NoteCardState extends State<NoteCard> {
                             visible: _isHovered,
                             child: IconButton(
                               onPressed: () {
-                                togglePinnedStatus();
+                                toggleNotePinned(isar, widget.note);
                               },
                               icon: Icon(
                                 widget.note.pinned

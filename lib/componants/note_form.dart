@@ -265,7 +265,8 @@ class _NoteFormState extends State<NoteForm> {
                     autoFocus: true,
                     controller: _controller,
                     sharedConfigurations: const QuillSharedConfigurations(
-                        dialogBarrierColor: Colors.white),
+                      dialogBarrierColor: Colors.white,
+                    ),
                   ),
                 ),
               ),

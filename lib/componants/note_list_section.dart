@@ -48,6 +48,7 @@ class NoteListSection extends StatelessWidget {
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                   shrinkWrap: true,
+                  dragStartDelay: const Duration(microseconds: 600),
                   onReorder: onReorder!,
                   children: notes.map((note) {
                     return NoteCard(

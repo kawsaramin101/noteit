@@ -29,6 +29,7 @@ class _NoteListState extends State<NoteList> {
   List<Note> searchedNotes = [];
 
   String _searchTerm = "";
+  bool watcherSuppressed = false;
 
   @override
   void initState() {
@@ -47,10 +48,15 @@ class _NoteListState extends State<NoteList> {
   }
 
   void fetchNotes() async {
-    final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
-    setState(() {
-      notes = fetchedNotes;
-    });
+    if (!watcherSuppressed) {
+      debugPrint("Run");
+      final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
+      setState(() {
+        notes = fetchedNotes;
+        pinnedNotes = notes.where((note) => note.pinned).toList();
+        unpinnedNotes = notes.where((note) => !note.pinned).toList();
+      });
+    }
   }
 
   void _deleteNote(Id id) {
@@ -129,10 +135,8 @@ class _NoteListState extends State<NoteList> {
                 'Delete',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () async {
-                await isar.writeTxn(() async {
-                  await isar.notes.delete(id);
-                });
+              onPressed: () {
+                deleteNote(isar, id);
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }
@@ -158,9 +162,6 @@ class _NoteListState extends State<NoteList> {
       });
     });
 
-    pinnedNotes = notes.where((note) => note.pinned).toList();
-    unpinnedNotes = notes.where((note) => !note.pinned).toList();
-
     return Expanded(
       child: (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
           ? const Center(
@@ -185,7 +186,41 @@ class _NoteListState extends State<NoteList> {
                             title: "Pinned Notes",
                             notes: pinnedNotes,
                             deleteNote: _deleteNote,
-                            onReorder: (oldIndex, newIndex) {},
+                            onReorder: (oldIndex, newIndex) async {
+                              if (newIndex == oldIndex) return;
+
+                              if (oldIndex < newIndex) {
+                                // Moving down in the list
+                                final firstItem = pinnedNotes[newIndex].order;
+                                for (int i = newIndex; i > oldIndex; i--) {
+                                  pinnedNotes[i].order =
+                                      pinnedNotes[i - 1].order;
+                                }
+                                pinnedNotes[oldIndex].order = firstItem;
+                              } else {
+                                // Moving up in the list
+                                final firstItem = pinnedNotes[newIndex].order;
+                                for (int i = newIndex; i < oldIndex; i++) {
+                                  pinnedNotes[i].order =
+                                      pinnedNotes[i + 1].order;
+                                }
+                                pinnedNotes[oldIndex].order = firstItem;
+                              }
+
+                              setState(() {
+                                pinnedNotes = pinnedNotes;
+                                final item = pinnedNotes.removeAt(oldIndex);
+                                pinnedNotes.insert(newIndex, item);
+                              });
+
+                              watcherSuppressed = true;
+                              await isar.writeTxn(() async {
+                                for (var note in pinnedNotes) {
+                                  await isar.notes.put(note);
+                                }
+                              });
+                              watcherSuppressed = false;
+                            },
                             shouldReorder: true,
                           ),
                         if (unpinnedNotes.isNotEmpty)
@@ -193,7 +228,41 @@ class _NoteListState extends State<NoteList> {
                             title: "All Notes",
                             notes: unpinnedNotes,
                             deleteNote: _deleteNote,
-                            onReorder: (oldIndex, newIndex) {},
+                            onReorder: (oldIndex, newIndex) async {
+                              if (newIndex == oldIndex) return;
+
+                              if (oldIndex < newIndex) {
+                                // Moving down in the list
+                                final firstItem = unpinnedNotes[newIndex].order;
+                                for (int i = newIndex; i > oldIndex; i--) {
+                                  unpinnedNotes[i].order =
+                                      unpinnedNotes[i - 1].order;
+                                }
+                                unpinnedNotes[oldIndex].order = firstItem;
+                              } else {
+                                // Moving up in the list
+                                final firstItem = unpinnedNotes[newIndex].order;
+                                for (int i = newIndex; i < oldIndex; i++) {
+                                  unpinnedNotes[i].order =
+                                      pinnedNotes[i + 1].order;
+                                }
+                                unpinnedNotes[oldIndex].order = firstItem;
+                              }
+
+                              setState(() {
+                                unpinnedNotes = unpinnedNotes;
+                                final item = unpinnedNotes.removeAt(oldIndex);
+                                unpinnedNotes.insert(newIndex, item);
+                              });
+
+                              watcherSuppressed = true;
+                              await isar.writeTxn(() async {
+                                for (var note in unpinnedNotes) {
+                                  await isar.notes.put(note);
+                                }
+                              });
+                              watcherSuppressed = false;
+                            },
                             shouldReorder: true,
                           ),
                       ] else ...[
