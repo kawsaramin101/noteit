@@ -30,6 +30,7 @@ void main() async {
   // TODO: implement order changing when pining/unpinning
   // TODO: Delete parent and edits after deleting a note
   // TODO: app crashes on quill paste
+  // TODO: immediete clearing after clearing of search field
 
   runApp(MainWidget(
     isar: isar,

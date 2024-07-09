@@ -43,10 +43,15 @@ class _BaseLayoutState extends State<BaseLayout> {
     final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
 
     void onSearchChanged(String newValue) {
-      if (_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (newValue.isEmpty) {
         searchNotifierProvider.valueNotifier.value = newValue;
-      });
+        _debounce?.cancel();
+      } else {
+        if (_debounce?.isActive ?? false) _debounce!.cancel();
+        _debounce = Timer(const Duration(milliseconds: 500), () {
+          searchNotifierProvider.valueNotifier.value = newValue;
+        });
+      }
     }
 
     return Scaffold(

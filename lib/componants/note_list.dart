@@ -197,12 +197,24 @@ class _NoteListState extends State<NoteList> {
                             shouldReorder: true,
                           ),
                       ] else ...[
-                        NoteListSection(
-                          title: "Search result for \"$_searchTerm\"",
-                          notes: searchedNotes,
-                          deleteNote: _deleteNote,
-                          shouldReorder: false,
-                        ),
+                        if (searchedNotes.isNotEmpty) ...[
+                          NoteListSection(
+                            title: "Search result for \"$_searchTerm\"",
+                            notes: searchedNotes,
+                            deleteNote: _deleteNote,
+                            shouldReorder: false,
+                          ),
+                        ] else ...[
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 8.0),
+                            child: Text(
+                              "No search result for \"$_searchTerm\"",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ]
                       ]
                     ],
                   )),
