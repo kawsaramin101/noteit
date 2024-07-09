@@ -60,13 +60,6 @@ class _NoteCardState extends State<NoteCard> {
     _editingController.document = Document.fromJson(json);
   }
 
-  void togglePinnedStatus() async {
-    widget.note.pinned = !widget.note.pinned;
-    await isar.writeTxn(() async {
-      await isar.notes.put(widget.note);
-    });
-  }
-
   Future<void> showEditDialog(BuildContext context) async {
     return showDialog(
       context: context,
@@ -78,7 +71,7 @@ class _NoteCardState extends State<NoteCard> {
             setState(() {
               _isNotePinned = !_isNotePinned;
             });
-            togglePinnedStatus();
+            toggleNotePinned(isar, widget.note);
           },
           note: widget.note,
           edit: edit,
