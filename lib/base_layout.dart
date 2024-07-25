@@ -27,6 +27,8 @@ class _BaseLayoutState extends State<BaseLayout> {
   final FocusNode _scaffoldFocusNode = FocusNode();
   final FocusNode _searchFocusNode = FocusNode();
 
+  late BuildContext noteFormDialogContext;
+
   bool _isNotePinned = false;
 
   @override
@@ -91,16 +93,14 @@ class _BaseLayoutState extends State<BaseLayout> {
             return null;
           },
         ),
-        FindIntent: CallbackAction<FindIntent>(
+        OpenNoteFormIntent: CallbackAction<OpenNoteFormIntent>(
           onInvoke: (intent) {
             showNoteForm();
             return null;
           },
         ),
-        FocusOrUnfocusSearchField:
-            CallbackAction<FocusOrUnfocusSearchField>(onInvoke: (intent) {
-          debugPrint("Run");
-
+        FocusOrUnfocusSearchFieldIntent:
+            CallbackAction<FocusOrUnfocusSearchFieldIntent>(onInvoke: (intent) {
           _focusOrUnfocusSearchField();
           return null;
         })
@@ -110,9 +110,9 @@ class _BaseLayoutState extends State<BaseLayout> {
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS):
               const SaveIntent(),
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyA):
-              const FindIntent(),
+              const OpenNoteFormIntent(),
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF):
-              const FocusOrUnfocusSearchField(),
+              const FocusOrUnfocusSearchFieldIntent(),
         },
         child: Focus(
           autofocus: true,
@@ -173,10 +173,10 @@ class SaveIntent extends Intent {
   const SaveIntent();
 }
 
-class FindIntent extends Intent {
-  const FindIntent();
+class OpenNoteFormIntent extends Intent {
+  const OpenNoteFormIntent();
 }
 
-class FocusOrUnfocusSearchField extends Intent {
-  const FocusOrUnfocusSearchField();
+class FocusOrUnfocusSearchFieldIntent extends Intent {
+  const FocusOrUnfocusSearchFieldIntent();
 }
