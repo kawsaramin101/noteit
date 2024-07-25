@@ -23,6 +23,8 @@ class _BaseLayoutState extends State<BaseLayout> {
   final _quillController = QuillController.basic();
 
   late SearchNotifierProvider searchNotifierProvider;
+
+  final FocusNode _scaffoldFocusNode = FocusNode();
   final FocusNode _searchFocusNode = FocusNode();
 
   bool _isNotePinned = false;
@@ -62,63 +64,119 @@ class _BaseLayoutState extends State<BaseLayout> {
     );
   }
 
-  void _handleKeyPress(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      if (/*event.logicalKey == LogicalKeyboardKey.control &&*/
-          event.logicalKey == LogicalKeyboardKey.keyA) {
-        showNoteForm();
-      } else if (event.logicalKey == LogicalKeyboardKey.keyF) {
+  void _handleSave() {
+    debugPrint("RUn");
+  }
+
+  void _focusOrUnfocusSearchField() {
+    try {
+      if (_searchFocusNode.hasFocus) {
+        _searchFocusNode.unfocus();
+        _scaffoldFocusNode.requestFocus();
+      } else {
         _searchFocusNode.requestFocus();
-      } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        debugPrint('Right arrow pressed');
       }
+    } catch (e) {
+      debugPrint("Error focusing/unfocusing search field: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: YaruWindowTitleBar(
-        titleSpacing: 0.0,
-        backgroundColor: const Color(0xFF28292A),
-        leading: const Menu(),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            YaruIconButton(
-              icon: const Icon(YaruIcons.plus),
-              onPressed: showNoteForm,
-              tooltip: "Create note",
-            ),
-            SizedBox(
-              width: 350,
-              height: 34.0,
-              child: TextField(
-                controller: _searchController,
-                focusNode: _searchFocusNode,
-                onChanged: onSearchChanged,
-                decoration: const InputDecoration(
-                  filled: true,
-                  hintText: 'Search',
-                  prefixIcon: Icon(
-                    YaruIcons.search,
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+    return Actions(
+      actions: {
+        SaveIntent: CallbackAction<SaveIntent>(
+          onInvoke: (intent) {
+            _handleSave();
+            return null;
+          },
+        ),
+        FindIntent: CallbackAction<FindIntent>(
+          onInvoke: (intent) {
+            showNoteForm();
+            return null;
+          },
+        ),
+        FocusOrUnfocusSearchField:
+            CallbackAction<FocusOrUnfocusSearchField>(onInvoke: (intent) {
+          debugPrint("Run");
+
+          _focusOrUnfocusSearchField();
+          return null;
+        })
+      },
+      child: Shortcuts(
+        shortcuts: <LogicalKeySet, Intent>{
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS):
+              const SaveIntent(),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyA):
+              const FindIntent(),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF):
+              const FocusOrUnfocusSearchField(),
+        },
+        child: Focus(
+          autofocus: true,
+          focusNode: _scaffoldFocusNode,
+          child: Builder(builder: (BuildContext context) {
+            return Scaffold(
+              appBar: YaruWindowTitleBar(
+                titleSpacing: 0.0,
+                backgroundColor: const Color(0xFF28292A),
+                leading: const Menu(),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    YaruIconButton(
+                      icon: const Icon(YaruIcons.plus),
+                      onPressed: showNoteForm,
+                      tooltip: "Create note",
+                    ),
+                    SizedBox(
+                      width: 350,
+                      height: 34.0,
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: onSearchChanged,
+                        decoration: const InputDecoration(
+                          filled: true,
+                          hintText: 'Search',
+                          prefixIcon: Icon(
+                            YaruIcons.search,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                              EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 8.0,
+                    ),
+                  ],
                 ),
-                textAlignVertical: TextAlignVertical.center,
               ),
-            ),
-            const SizedBox(
-              width: 8.0,
-            ),
-          ],
+              backgroundColor: const Color(0xFF18191a),
+              body: const Home(),
+            );
+          }),
         ),
       ),
-      backgroundColor: const Color(0xFF18191a),
-      body: const Home(),
     );
   }
+}
+
+class SaveIntent extends Intent {
+  const SaveIntent();
+}
+
+class FindIntent extends Intent {
+  const FindIntent();
+}
+
+class FocusOrUnfocusSearchField extends Intent {
+  const FocusOrUnfocusSearchField();
 }
