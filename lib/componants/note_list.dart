@@ -39,6 +39,22 @@ class _NoteListState extends State<NoteList> {
     setupWatcher();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
+    final valueNotifier = searchNotifierProvider.valueNotifier;
+
+    valueNotifier.addListener(() {
+      if (valueNotifier.value != null && valueNotifier.value != "") {
+        searchNotes(valueNotifier.value!);
+      }
+      setState(() {
+        _searchTerm = valueNotifier.value!;
+      });
+    });
+  }
+
   void setupWatcher() {
     notesStream = isar.notes.watchLazy();
 
@@ -49,7 +65,6 @@ class _NoteListState extends State<NoteList> {
 
   void fetchNotes() async {
     if (!watcherSuppressed) {
-      debugPrint("Run");
       final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
       setState(() {
         notes = fetchedNotes;
@@ -150,18 +165,6 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
-    final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
-    final valueNotifier = searchNotifierProvider.valueNotifier;
-
-    valueNotifier.addListener(() {
-      if (valueNotifier.value != null && valueNotifier.value != "") {
-        searchNotes(valueNotifier.value!);
-      }
-      setState(() {
-        _searchTerm = valueNotifier.value!;
-      });
-    });
-
     return Expanded(
       child: (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
           ? const Center(
@@ -207,15 +210,17 @@ class _NoteListState extends State<NoteList> {
                                 pinnedNotes[oldIndex].order = firstItem;
                               }
 
+                              final item = pinnedNotes.removeAt(oldIndex);
+                              pinnedNotes.insert(newIndex, item);
+
                               setState(() {
                                 pinnedNotes = pinnedNotes;
-                                final item = pinnedNotes.removeAt(oldIndex);
-                                pinnedNotes.insert(newIndex, item);
                               });
 
                               watcherSuppressed = true;
+
                               await isar.writeTxn(() async {
-                                for (var note in pinnedNotes) {
+                                for (final note in pinnedNotes) {
                                   await isar.notes.put(note);
                                 }
                               });
@@ -244,23 +249,25 @@ class _NoteListState extends State<NoteList> {
                                 final firstItem = unpinnedNotes[newIndex].order;
                                 for (int i = newIndex; i < oldIndex; i++) {
                                   unpinnedNotes[i].order =
-                                      pinnedNotes[i + 1].order;
+                                      unpinnedNotes[i + 1].order;
                                 }
                                 unpinnedNotes[oldIndex].order = firstItem;
                               }
+                              final item = unpinnedNotes.removeAt(oldIndex);
+                              unpinnedNotes.insert(newIndex, item);
 
                               setState(() {
                                 unpinnedNotes = unpinnedNotes;
-                                final item = unpinnedNotes.removeAt(oldIndex);
-                                unpinnedNotes.insert(newIndex, item);
                               });
 
                               watcherSuppressed = true;
+
                               await isar.writeTxn(() async {
-                                for (var note in unpinnedNotes) {
+                                for (final note in unpinnedNotes) {
                                   await isar.notes.put(note);
                                 }
                               });
+
                               watcherSuppressed = false;
                             },
                             shouldReorder: true,

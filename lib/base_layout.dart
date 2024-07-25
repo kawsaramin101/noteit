@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:notes/componants/menu_dialogs/menu.dart';
 import 'package:notes/notifiers/search_notifiers.dart';
 import 'package:notes/routes/home.dart';
 import 'package:notes/componants/note_form.dart';
@@ -17,9 +19,31 @@ class BaseLayout extends StatefulWidget {
 
 class _BaseLayoutState extends State<BaseLayout> {
   Timer? _debounce;
+  final TextEditingController _searchController = TextEditingController();
   final _quillController = QuillController.basic();
 
+  late SearchNotifierProvider searchNotifierProvider;
+  final FocusNode _searchFocusNode = FocusNode();
+
   bool _isNotePinned = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
+  }
+
+  void onSearchChanged(String newValue) {
+    if (newValue.isEmpty) {
+      searchNotifierProvider.valueNotifier.value = newValue;
+      _debounce?.cancel();
+    } else {
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        searchNotifierProvider.valueNotifier.value = newValue;
+      });
+    }
+  }
 
   void showNoteForm() {
     showDialog(
@@ -38,69 +62,26 @@ class _BaseLayoutState extends State<BaseLayout> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final searchNotifierProvider = Provider.of<SearchNotifierProvider>(context);
-
-    void onSearchChanged(String newValue) {
-      if (newValue.isEmpty) {
-        searchNotifierProvider.valueNotifier.value = newValue;
-        _debounce?.cancel();
-      } else {
-        if (_debounce?.isActive ?? false) _debounce!.cancel();
-        _debounce = Timer(const Duration(milliseconds: 500), () {
-          searchNotifierProvider.valueNotifier.value = newValue;
-        });
+  void _handleKeyPress(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (/*event.logicalKey == LogicalKeyboardKey.control &&*/
+          event.logicalKey == LogicalKeyboardKey.keyA) {
+        showNoteForm();
+      } else if (event.logicalKey == LogicalKeyboardKey.keyF) {
+        _searchFocusNode.requestFocus();
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        debugPrint('Right arrow pressed');
       }
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: YaruWindowTitleBar(
         titleSpacing: 0.0,
         backgroundColor: const Color(0xFF28292A),
-        leading: MenuAnchor(
-            builder: (BuildContext context, MenuController controller,
-                Widget? child) {
-              return YaruIconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const Icon(
-                  YaruIcons.menu,
-                ),
-                tooltip: 'Show menu',
-              );
-            },
-            menuChildren: [
-              MenuItemButton(
-                style: ButtonStyle(
-                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
-                ),
-                onPressed: () => {},
-                leadingIcon: const Icon(YaruIcons.settings),
-                child: const Text('Settings'),
-              ),
-              MenuItemButton(
-                style: ButtonStyle(
-                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
-                ),
-                onPressed: () => {},
-                leadingIcon: const Icon(YaruIcons.keyboard_shortcuts),
-                child: const Text('Keyboard Shortcuts'),
-              ),
-              MenuItemButton(
-                style: ButtonStyle(
-                  padding: WidgetStateProperty.all(const EdgeInsets.all(16.0)),
-                ),
-                onPressed: () => {},
-                leadingIcon: const Icon(YaruIcons.information),
-                child: const Text('About'),
-              ),
-            ]),
+        leading: const Menu(),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -113,6 +94,8 @@ class _BaseLayoutState extends State<BaseLayout> {
               width: 350,
               height: 34.0,
               child: TextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
                 onChanged: onSearchChanged,
                 decoration: const InputDecoration(
                   filled: true,
@@ -135,20 +118,7 @@ class _BaseLayoutState extends State<BaseLayout> {
         ),
       ),
       backgroundColor: const Color(0xFF18191a),
-      body: Navigator(
-        onGenerateRoute: (RouteSettings settings) {
-          WidgetBuilder builder;
-          switch (settings.name) {
-            case '/':
-              builder = (BuildContext context) => const Home();
-              break;
-
-            default:
-              throw Exception('Invalid route: ${settings.name}');
-          }
-          return MaterialPageRoute(builder: builder, settings: settings);
-        },
-      ),
+      body: const Home(),
     );
   }
 }

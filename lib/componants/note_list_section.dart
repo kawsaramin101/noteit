@@ -22,7 +22,7 @@ class NoteListSection extends StatelessWidget {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    int crossAxisCount = 3;
+    const int crossAxisCount = 3;
 
     final double itemWidth =
         (size.width - (crossAxisCount - 1) * 10) / crossAxisCount;
@@ -43,7 +43,7 @@ class NoteListSection extends StatelessWidget {
               ? ReorderableGridView.count(
                   padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                   crossAxisCount: crossAxisCount,
-                  physics: const ClampingScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: (itemWidth / itemHeight),
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,

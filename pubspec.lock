@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "61.0.0"
+  adwaita:
+    dependency: "direct main"
+    description:
+      name: adwaita
+      sha256: "91be996e0e3a88c5cc42251af5559707a712f847995240a27fdf71e1dc44630e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   analyzer:
     dependency: transitive
     description:
@@ -363,14 +371,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_masonry_view:
-    dependency: "direct main"
-    description:
-      name: flutter_masonry_view
-      sha256: b729d28c07f9d5b2011535c8823e72772247b0746fa37b0e1cabaa0ef2e9dbc0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
   flutter_quill:
     dependency: "direct main"
     description:
@@ -649,10 +649,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: bca87b0165ffd7cdb9cad8edd22d18d2201e886d9a9f19b4fb3452ea7df3a72a
+      sha256: "30c5aa827a6ae95ce2853cdc5fe3971daaac00f6f081c419c013f7f57bff2f5e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.6"
+    version: "2.2.7"
   path_provider_foundation:
     dependency: transitive
     description:

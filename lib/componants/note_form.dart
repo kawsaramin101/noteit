@@ -264,6 +264,7 @@ class _NoteFormState extends State<NoteForm> {
                   configurations: QuillEditorConfigurations(
                     autoFocus: true,
                     controller: _controller,
+                    disableClipboard: false,
                     sharedConfigurations: const QuillSharedConfigurations(
                       dialogBarrierColor: Colors.white,
                     ),

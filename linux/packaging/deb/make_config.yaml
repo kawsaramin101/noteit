@@ -1,0 +1,27 @@
+display_name: NoteIt
+package_name: noteit
+
+maintainer:
+    name: MD Kawsar amin
+    email: kawsar101amin@gmail.com
+
+priority: optional
+
+section: x11
+
+installed_size: 15700
+
+essential: false
+
+icon: linux/assests/writing.png
+
+keywords:
+    - Note
+    - Markdown
+
+generic_name: Simple note taking app with markdown
+
+categories:
+    - Utilities
+
+startup_notify: false

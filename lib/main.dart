@@ -27,7 +27,8 @@ void main() async {
   //       -light mode/dark mode/system
   //       -title field
   //       -pinned notes?
-  // TODO: app crashes on quill paste
+  // TODO: app crashes on quill paste - doesn't crash on release build
+  // TODO: download and upload data
   // Colored note?
   // Labeled note?
 
