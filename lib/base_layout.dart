@@ -66,10 +66,6 @@ class _BaseLayoutState extends State<BaseLayout> {
     );
   }
 
-  void _handleSave() {
-    debugPrint("RUn");
-  }
-
   void _focusOrUnfocusSearchField() {
     try {
       if (_searchFocusNode.hasFocus) {
@@ -87,12 +83,6 @@ class _BaseLayoutState extends State<BaseLayout> {
   Widget build(BuildContext context) {
     return Actions(
       actions: {
-        SaveIntent: CallbackAction<SaveIntent>(
-          onInvoke: (intent) {
-            _handleSave();
-            return null;
-          },
-        ),
         OpenNoteFormIntent: CallbackAction<OpenNoteFormIntent>(
           onInvoke: (intent) {
             showNoteForm();
@@ -107,8 +97,6 @@ class _BaseLayoutState extends State<BaseLayout> {
       },
       child: Shortcuts(
         shortcuts: <LogicalKeySet, Intent>{
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS):
-              const SaveIntent(),
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyA):
               const OpenNoteFormIntent(),
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF):
@@ -167,10 +155,6 @@ class _BaseLayoutState extends State<BaseLayout> {
       ),
     );
   }
-}
-
-class SaveIntent extends Intent {
-  const SaveIntent();
 }
 
 class OpenNoteFormIntent extends Intent {

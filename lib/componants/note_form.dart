@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
 import 'package:notes/data/edit_model.dart';
@@ -26,10 +27,10 @@ class NoteForm extends StatefulWidget {
   });
 
   @override
-  State<NoteForm> createState() => _NoteFormState();
+  State<NoteForm> createState() => NoteFormState();
 }
 
-class _NoteFormState extends State<NoteForm> {
+class NoteFormState extends State<NoteForm> {
   late Isar isar;
   bool isHeadingSelected = true;
   bool _isNotePinned = false;
@@ -39,6 +40,8 @@ class _NoteFormState extends State<NoteForm> {
   late QuillController _controller;
 
   Edit? currentEdit;
+
+  final FocusNode _quillEditorFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -260,13 +263,36 @@ class _NoteFormState extends State<NoteForm> {
                         width: 0.8, color: Color.fromRGBO(97, 97, 97, 1)),
                   ),
                 ),
-                child: QuillEditor.basic(
-                  configurations: QuillEditorConfigurations(
-                    autoFocus: true,
-                    controller: _controller,
-                    disableClipboard: false,
-                    sharedConfigurations: const QuillSharedConfigurations(
-                      dialogBarrierColor: Colors.white,
+                child: Actions(
+                  actions: {
+                    SaveIntent: CallbackAction<SaveIntent>(
+                      onInvoke: (intent) {
+                        _createOrUpdateNote();
+                        return null;
+                      },
+                    ),
+                  },
+                  child: Shortcuts(
+                    shortcuts: <LogicalKeySet, Intent>{
+                      LogicalKeySet(LogicalKeyboardKey.control,
+                          LogicalKeyboardKey.keyS): const SaveIntent(),
+                    },
+                    child: Focus(
+                      autofocus: true,
+                      focusNode: _quillEditorFocusNode,
+                      child: Builder(builder: (BuildContext context) {
+                        return QuillEditor.basic(
+                          configurations: QuillEditorConfigurations(
+                            autoFocus: true,
+                            controller: _controller,
+                            disableClipboard: false,
+                            sharedConfigurations:
+                                const QuillSharedConfigurations(
+                              dialogBarrierColor: Colors.white,
+                            ),
+                          ),
+                        );
+                      }),
                     ),
                   ),
                 ),
@@ -341,7 +367,7 @@ class HIcon extends StatelessWidget {
         child: Text(
           'H',
           style: TextStyle(
-            fontSize: size * 0.7, // Adjust font size as needed
+            fontSize: size * 0.7,
             fontWeight: FontWeight.bold,
             color: IconTheme.of(context).color, // Default icon color
           ),
@@ -349,4 +375,8 @@ class HIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+class SaveIntent extends Intent {
+  const SaveIntent();
 }
