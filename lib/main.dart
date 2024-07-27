@@ -22,13 +22,13 @@ void main() async {
 
   // await clearDatabase(isar);
 
-  // TODO: Keyboard shortcut to save a note
   // TODO: add settings page
   //       -light mode/dark mode/system
   //       -title field
   //       -pinned notes?
   // TODO: app crashes on quill paste - doesn't crash on release build
   // TODO: download and upload data
+  // TODO: select note
   // Colored note?
   // Labeled note?
 

@@ -42,7 +42,7 @@ Future<Note> createNote(
     await newEdit.note.save();
   });
 
-  if (parentNote != null) {
+  if (parentNote == null) {
     await prefs.setInt('lastAddedNoteOrder', newOrder);
   }
 

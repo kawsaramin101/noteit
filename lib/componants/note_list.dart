@@ -68,8 +68,8 @@ class _NoteListState extends State<NoteList> {
       final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
       setState(() {
         notes = fetchedNotes;
-        pinnedNotes = notes.where((note) => note.pinned).toList();
-        unpinnedNotes = notes.where((note) => !note.pinned).toList();
+        pinnedNotes = fetchedNotes.where((note) => note.pinned).toList();
+        unpinnedNotes = fetchedNotes.where((note) => !note.pinned).toList();
       });
     }
   }
