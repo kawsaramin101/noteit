@@ -71,7 +71,7 @@ class NoteFormState extends State<NoteForm> {
     final contentInPlainText = _controller.document.toPlainText();
 
     if (widget.note == null) {
-      context
+      await context
           .read<NoteProvider>()
           .createNote(jsonEncodedData, contentInPlainText, _isNotePinned);
     } else {

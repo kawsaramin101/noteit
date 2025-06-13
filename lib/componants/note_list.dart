@@ -24,7 +24,9 @@ class _NoteListState extends State<NoteList> {
 
   StreamSubscription<void>? notesSubscription;
 
-  List<Note> notes = [];
+  // List<Note> notes = [];
+  Iterable<Note> allNotes = Iterable<Note>.empty();
+
   List<Note> pinnedNotes = [];
   List<Note> unpinnedNotes = [];
   List<Note> searchedNotes = [];
@@ -68,7 +70,7 @@ class _NoteListState extends State<NoteList> {
     if (!watcherSuppressed) {
       final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
       setState(() {
-        notes = fetchedNotes;
+        // notes = fetchedNotes;
         pinnedNotes = fetchedNotes.where((note) => note.pinned).toList();
         unpinnedNotes = fetchedNotes.where((note) => !note.pinned).toList();
       });
@@ -84,7 +86,7 @@ class _NoteListState extends State<NoteList> {
       final queryParts = searchTerm.toLowerCase().split(' ');
 
       List<Note> searchResults = [];
-      for (var note in notes) {
+      for (var note in allNotes) {
         final latestEdit = await isar.edits
             .where(sort: Sort.desc)
             .filter()
@@ -152,7 +154,7 @@ class _NoteListState extends State<NoteList> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                deleteNote(isar, id);
+                context.read<NoteProvider>().deleteNote(id);
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }
@@ -168,6 +170,11 @@ class _NoteListState extends State<NoteList> {
   Widget build(BuildContext context) {
     final pinnedNotes = context.watch<NoteProvider>().pinnedNotes;
     final unpinnedNotes = context.watch<NoteProvider>().unpinnedNotes;
+
+    allNotes = context
+        .watch<NoteProvider>()
+        .pinnedNotes
+        .followedBy(context.watch<NoteProvider>().unpinnedNotes);
 
     return Expanded(
       child: (pinnedNotes.isEmpty && unpinnedNotes.isEmpty)
@@ -194,41 +201,9 @@ class _NoteListState extends State<NoteList> {
                             notes: pinnedNotes,
                             deleteNote: _deleteNote,
                             onReorder: (oldIndex, newIndex) async {
-                              if (newIndex == oldIndex) return;
-
-                              if (oldIndex < newIndex) {
-                                // Moving down in the list
-                                final firstItem = pinnedNotes[newIndex].order;
-                                for (int i = newIndex; i > oldIndex; i--) {
-                                  pinnedNotes[i].order =
-                                      pinnedNotes[i - 1].order;
-                                }
-                                pinnedNotes[oldIndex].order = firstItem;
-                              } else {
-                                // Moving up in the list
-                                final firstItem = pinnedNotes[newIndex].order;
-                                for (int i = newIndex; i < oldIndex; i++) {
-                                  pinnedNotes[i].order =
-                                      pinnedNotes[i + 1].order;
-                                }
-                                pinnedNotes[oldIndex].order = firstItem;
-                              }
-
-                              final item = pinnedNotes.removeAt(oldIndex);
-                              pinnedNotes.insert(newIndex, item);
-
-                              setState(() {
-                                // pinnedNotes = pinnedNotes;
-                              });
-
-                              watcherSuppressed = true;
-
-                              await isar.writeTxn(() async {
-                                for (final note in pinnedNotes) {
-                                  await isar.notes.put(note);
-                                }
-                              });
-                              watcherSuppressed = false;
+                              context
+                                  .read<NoteProvider>()
+                                  .reOrderNote(true, newIndex, oldIndex);
                             },
                             shouldReorder: true,
                           ),
@@ -238,41 +213,9 @@ class _NoteListState extends State<NoteList> {
                             notes: unpinnedNotes,
                             deleteNote: _deleteNote,
                             onReorder: (oldIndex, newIndex) async {
-                              if (newIndex == oldIndex) return;
-
-                              if (oldIndex < newIndex) {
-                                // Moving down in the list
-                                final firstItem = unpinnedNotes[newIndex].order;
-                                for (int i = newIndex; i > oldIndex; i--) {
-                                  unpinnedNotes[i].order =
-                                      unpinnedNotes[i - 1].order;
-                                }
-                                unpinnedNotes[oldIndex].order = firstItem;
-                              } else {
-                                // Moving up in the list
-                                final firstItem = unpinnedNotes[newIndex].order;
-                                for (int i = newIndex; i < oldIndex; i++) {
-                                  unpinnedNotes[i].order =
-                                      unpinnedNotes[i + 1].order;
-                                }
-                                unpinnedNotes[oldIndex].order = firstItem;
-                              }
-                              final item = unpinnedNotes.removeAt(oldIndex);
-                              unpinnedNotes.insert(newIndex, item);
-
-                              setState(() {
-                                // unpinnedNotes = unpinnedNotes;
-                              });
-
-                              watcherSuppressed = true;
-
-                              await isar.writeTxn(() async {
-                                for (final note in unpinnedNotes) {
-                                  await isar.notes.put(note);
-                                }
-                              });
-
-                              watcherSuppressed = false;
+                              context
+                                  .read<NoteProvider>()
+                                  .reOrderNote(false, newIndex, oldIndex);
                             },
                             shouldReorder: true,
                           ),

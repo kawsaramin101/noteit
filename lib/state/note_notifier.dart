@@ -31,20 +31,6 @@ class NoteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addNote(Note note) async {
-    await _isar.writeTxn(() async {
-      await _isar.notes.put(note);
-    });
-
-    if (note.pinned) {
-      _pinnedNotes.add(note);
-    } else {
-      _unpinnedNotes.add(note);
-    }
-
-    notifyListeners();
-  }
-
   Future<Note> createNote(
       String contentInJson, String contentInPlainText, bool pinned,
       {Note? parentNote}) async {
@@ -104,14 +90,77 @@ class NoteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteNote(Note note) async {
+  Future<void> deleteNote(int noteId) async {
     await _isar.writeTxn(() async {
-      await _isar.notes.delete(note.id);
+      await _isar.edits.filter().note((q) => q.idEqualTo(noteId)).deleteAll();
+
+      await _isar.notes.delete(noteId);
     });
 
-    _pinnedNotes.removeWhere((n) => n.id == note.id);
-    _unpinnedNotes.removeWhere((n) => n.id == note.id);
+    _pinnedNotes.removeWhere((n) => n.id == noteId);
+    _unpinnedNotes.removeWhere((n) => n.id == noteId);
 
     notifyListeners();
+  }
+
+  Future<void> toggleNotePinned(Note note) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
+
+    int newOrder = lastOrder + 1;
+
+    note.pinned = !note.pinned;
+    note.order = newOrder;
+
+    await _isar.writeTxn(() async {
+      await _isar.notes.put(note);
+    });
+    await prefs.setInt('lastAddedNoteOrder', newOrder);
+
+    if (note.pinned) {
+      _unpinnedNotes.removeWhere((n) => n.id == note.id);
+      _pinnedNotes.insert(0, note);
+    } else {
+      _pinnedNotes.removeWhere((n) => n.id == note.id);
+      _unpinnedNotes.insert(0, note);
+    }
+  }
+
+  Future<void> reOrderNote(bool isPinned, int newIndex, int oldIndex) async {
+    if (isPinned) {
+      _reOrder(newIndex, oldIndex, pinnedNotes);
+    } else {
+      _reOrder(newIndex, oldIndex, unpinnedNotes);
+    }
+
+    notifyListeners();
+  }
+
+  void _reOrder(int newIndex, int oldIndex, List<Note> noteList) async {
+    if (newIndex == oldIndex) return;
+
+    if (oldIndex < newIndex) {
+      // Moving down in the list
+      final firstItem = noteList[newIndex].order;
+      for (int i = newIndex; i > oldIndex; i--) {
+        noteList[i].order = noteList[i - 1].order;
+      }
+      noteList[oldIndex].order = firstItem;
+    } else {
+      // Moving up in the list
+      final firstItem = noteList[newIndex].order;
+      for (int i = newIndex; i < oldIndex; i++) {
+        noteList[i].order = noteList[i + 1].order;
+      }
+      noteList[oldIndex].order = firstItem;
+    }
+
+    final item = noteList.removeAt(oldIndex);
+    noteList.insert(newIndex, item);
+
+    await _isar.writeTxn(() async {
+      await _isar.notes.putAll(noteList);
+    });
   }
 }

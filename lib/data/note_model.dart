@@ -68,29 +68,6 @@ Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
   return newEdit;
 }
 
-Future<void> deleteNote(Isar isar, int noteId) async {
-  await isar.writeTxn(() async {
-    await isar.edits.filter().note((q) => q.idEqualTo(noteId)).deleteAll();
-
-    await isar.notes.delete(noteId);
-  });
-}
-
-Future<void> toggleNotePinned(Isar isar, Note note) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
-
-  int newOrder = lastOrder + 1;
-  note.pinned = !note.pinned;
-  note.order = newOrder;
-
-  await isar.writeTxn(() async {
-    await isar.notes.put(note);
-  });
-  await prefs.setInt('lastAddedNoteOrder', newOrder);
-}
-
 Future<void> changeNoteOrder(Isar isar, Note note, int newOrder) async {
   note.order = newOrder;
   await isar.writeTxn(() async {

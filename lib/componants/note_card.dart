@@ -6,6 +6,7 @@ import 'package:isar/isar.dart';
 import 'package:notes/componants/note_form.dart';
 import 'package:notes/data/edit_model.dart';
 import 'package:notes/data/note_model.dart';
+import 'package:notes/state/note_notifier.dart';
 import 'package:provider/provider.dart';
 
 class NoteCard extends StatefulWidget {
@@ -71,7 +72,7 @@ class _NoteCardState extends State<NoteCard> {
             setState(() {
               _isNotePinned = !_isNotePinned;
             });
-            toggleNotePinned(isar, widget.note);
+            context.read<NoteProvider>().toggleNotePinned(widget.note);
           },
           note: widget.note,
           edit: edit,
@@ -146,7 +147,9 @@ class _NoteCardState extends State<NoteCard> {
                             visible: _isHovered,
                             child: IconButton(
                               onPressed: () {
-                                toggleNotePinned(isar, widget.note);
+                                context
+                                    .read<NoteProvider>()
+                                    .toggleNotePinned(widget.note);
                               },
                               icon: Icon(
                                 widget.note.pinned
