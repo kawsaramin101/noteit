@@ -73,21 +73,40 @@ class NoteProvider extends ChangeNotifier {
     return note;
   }
 
-  Future<void> updateNote(Note note) async {
-    await _isar.writeTxn(() async {
-      await _isar.notes.put(note);
+  // Future<void> updateNote(Note note) async {
+  //   await _isar.writeTxn(() async {
+  //     await _isar.notes.put(note);
+  //   });
+
+  //   _pinnedNotes.removeWhere((n) => n.id == note.id);
+  //   _unpinnedNotes.removeWhere((n) => n.id == note.id);
+
+  //   if (note.pinned) {
+  //     _pinnedNotes.add(note);
+  //   } else {
+  //     _unpinnedNotes.add(note);
+  //   }
+
+  //   notifyListeners();
+  // }
+
+  Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
+      String contentInPlainText, bool pinned) async {
+    final newEdit = Edit()
+      ..content = contentInJson
+      ..createdAt = DateTime.now()
+      ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'))
+      ..note.value = note;
+
+    note.edits.add(newEdit);
+
+    await isar.writeTxn(() async {
+      await isar.edits.put(newEdit);
+      await newEdit.note.save();
+      await note.edits.save();
     });
 
-    _pinnedNotes.removeWhere((n) => n.id == note.id);
-    _unpinnedNotes.removeWhere((n) => n.id == note.id);
-
-    if (note.pinned) {
-      _pinnedNotes.add(note);
-    } else {
-      _unpinnedNotes.add(note);
-    }
-
-    notifyListeners();
+    return newEdit;
   }
 
   Future<void> deleteNote(int noteId) async {

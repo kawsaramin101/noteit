@@ -76,7 +76,7 @@ class NoteFormState extends State<NoteForm> {
           .createNote(jsonEncodedData, contentInPlainText, _isNotePinned);
     } else {
       final parent = widget.note!;
-      final newEdit = await updateNote(
+      final newEdit = await context.read<NoteProvider>().updateNote(
           isar, parent, jsonEncodedData, contentInPlainText, _isNotePinned);
       widget.changeEdit!(newEdit);
       if (_isNotePinned != widget.isNotePinned) {
