@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/notifiers/search_notifiers.dart';
+import 'package:notes/notifiers/theme_notifiers.dart';
+import 'package:notes/state/note_notifier.dart';
 
 import 'package:yaru/yaru.dart';
 
@@ -10,6 +12,8 @@ import 'package:notes/data/note_model.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   await YaruWindowTitleBar.ensureInitialized();
@@ -18,6 +22,7 @@ void main() async {
   final isar = await Isar.open(
     [NoteSchema, EditSchema],
     directory: dir.path,
+    name: "note_it_isar_db",
   );
 
   // await clearDatabase(isar);
@@ -49,31 +54,71 @@ class MainWidget extends StatelessWidget {
         Provider<SearchNotifierProvider>(
           create: (_) => SearchNotifierProvider(),
         ),
+        ChangeNotifierProvider<ThemeNotifier>(
+          create: (_) => ThemeNotifier(),
+        ),
+        ChangeNotifierProvider<NoteProvider>(
+          create: (context) {
+            final isar = context.read<Isar>();
+            final provider = NoteProvider(isar);
+            provider.loadNotes(); // Load initial notes
+            return provider;
+          },
+        ),
       ],
-      child: YaruTheme(
-          data: const YaruThemeData(
-              themeMode: ThemeMode.dark, useMaterial3: true),
-          builder: (context, yaru, child) {
-            final ThemeData lightTheme = yaru.theme ?? ThemeData.light();
-            final ThemeData darkTheme = yaru.darkTheme ?? ThemeData.dark();
-
-            return MaterialApp(
-              home: const BaseLayout(),
-              theme: _buildTheme(lightTheme, Brightness.light),
-              darkTheme: _buildTheme(darkTheme, Brightness.dark),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, child) {
+          return YaruTheme(
+            data: const YaruThemeData(
               themeMode: ThemeMode.dark,
-              debugShowCheckedModeBanner: false,
-              builder: (context, child) {
-                return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: const TextScaler.linear(1.0),
-                  ),
-                  child: child!,
-                );
-              },
-            );
-          }),
+              useMaterial3: true,
+            ),
+            builder: (context, yaru, child) {
+              final ThemeData lightTheme = yaru.theme ?? ThemeData.light();
+              final ThemeData darkTheme = yaru.darkTheme ?? ThemeData.dark();
+
+              return MaterialApp(
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  quill.FlutterQuillLocalizations
+                      .delegate, // <-- This is the required line
+                ],
+                supportedLocales: const [
+                  Locale('en'), // Or any locales your app supports
+                  // Add more locales if you need
+                ],
+                home: const BaseLayout(),
+                theme: _buildTheme(lightTheme, Brightness.light),
+                darkTheme: _buildTheme(darkTheme, Brightness.dark),
+                themeMode: _getThemeMode(themeNotifier),
+                debugShowCheckedModeBanner: false,
+                builder: (context, child) {
+                  return MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: const TextScaler.linear(0.9),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
+  }
+
+  ThemeMode _getThemeMode(ThemeNotifier themeNotifier) {
+    switch (themeNotifier.themeMode) {
+      case ThemeModeOption.darkMode:
+        return ThemeMode.dark;
+      case ThemeModeOption.lightMode:
+        return ThemeMode.light;
+      case ThemeModeOption.systemDefault:
+        return ThemeMode.system;
+    }
   }
 }
 

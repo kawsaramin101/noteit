@@ -106,10 +106,15 @@ class _BaseLayoutState extends State<BaseLayout> {
           autofocus: true,
           focusNode: _scaffoldFocusNode,
           child: Builder(builder: (BuildContext context) {
+            final theme = Theme.of(context);
+            final isDarkMode = theme.brightness == Brightness.dark;
+
             return Scaffold(
               appBar: YaruWindowTitleBar(
                 titleSpacing: 0.0,
-                backgroundColor: const Color(0xFF28292A),
+                backgroundColor: isDarkMode
+                    ? const Color(0xFF28292A)
+                    : const Color(0xFFF0F0F0),
                 leading: const Menu(),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

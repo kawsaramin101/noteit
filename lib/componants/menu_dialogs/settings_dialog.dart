@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notes/notifiers/theme_notifiers.dart';
+import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({super.key});
@@ -8,8 +10,22 @@ class SettingsDialog extends StatefulWidget {
 }
 
 class _SettingsDialogState extends State<SettingsDialog> {
+  ThemeModeOption _selectedThemeMode = ThemeModeOption.systemDefault;
+
+  String _getThemeModeText(ThemeModeOption themeMode) {
+    switch (themeMode) {
+      case ThemeModeOption.systemDefault:
+        return 'System Default';
+      case ThemeModeOption.darkMode:
+        return 'Dark Mode';
+      case ThemeModeOption.lightMode:
+        return 'Light Mode';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return AlertDialog(
       backgroundColor: Colors.grey[900],
       shape: const RoundedRectangleBorder(
@@ -19,28 +35,77 @@ class _SettingsDialogState extends State<SettingsDialog> {
       titleTextStyle: const TextStyle(fontSize: 20.0),
       title: const Center(child: Text("Settings")),
       content: SizedBox(
-        width: 500.0,
-        height: 400.0,
+        width: 400.0,
+        height: 300.0,
         child: Container(
           padding: const EdgeInsets.all(8.0),
-          child: const Column(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Theme mode"),
-              Text("Download Data"),
-              Text("Uplaod Data"),
-              Text("Delete all data")
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Theme mode",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  DropdownButton<ThemeModeOption>(
+                    value: _selectedThemeMode,
+                    onChanged: (ThemeModeOption? newValue) {
+                      setState(() {
+                        _selectedThemeMode = newValue!;
+                      });
+                      if (newValue != null) {
+                        themeNotifier.themeMode = newValue;
+                      }
+                    },
+                    items: ThemeModeOption.values.map((ThemeModeOption value) {
+                      return DropdownMenuItem<ThemeModeOption>(
+                        value: value,
+                        child: Text(_getThemeModeText(value)),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.download_rounded),
+                        label: const Text("Download Data"),
+                      ),
+                      const SizedBox(width: 10.0),
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.upload_rounded),
+                        label: const Text("Upload Data"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text("Delete all data"),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
       actionsAlignment: MainAxisAlignment.start,
       actions: <Widget>[
-        ElevatedButton(
-          onPressed: () {},
-          child: const Text(
-            "Save",
-          ),
-        ),
         ElevatedButton(
           style: TextButton.styleFrom(
             backgroundColor: Colors.red,

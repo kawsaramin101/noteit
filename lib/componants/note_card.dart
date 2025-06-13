@@ -201,12 +201,12 @@ class _NoteCardState extends State<NoteCard> {
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                       child: QuillEditor.basic(
-                        configurations: QuillEditorConfigurations(
-                          controller: _controller,
+                        controller: _controller,
+                        config: const QuillEditorConfig(
                           enableSelectionToolbar: false,
-                          sharedConfigurations: const QuillSharedConfigurations(
-                            dialogBarrierColor: Colors.white,
-                          ),
+                          // sharedConfigurations: QuillSharedConfigurations(
+                          //   dialogBarrierColor: Colors.white,
+                          // ),
                         ),
                       ),
                     ),

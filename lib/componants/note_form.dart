@@ -6,6 +6,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
 import 'package:notes/data/edit_model.dart';
 import 'package:notes/data/note_model.dart';
+import 'package:notes/state/note_notifier.dart';
 import 'package:provider/provider.dart';
 
 class NoteForm extends StatefulWidget {
@@ -70,7 +71,9 @@ class NoteFormState extends State<NoteForm> {
     final contentInPlainText = _controller.document.toPlainText();
 
     if (widget.note == null) {
-      createNote(isar, jsonEncodedData, contentInPlainText, _isNotePinned);
+      context
+          .read<NoteProvider>()
+          .createNote(jsonEncodedData, contentInPlainText, _isNotePinned);
     } else {
       final parent = widget.note!;
       final newEdit = await updateNote(
@@ -170,8 +173,9 @@ class NoteFormState extends State<NoteForm> {
           children: [
             Container(
               padding: const EdgeInsets.all(8.0),
-              child: QuillToolbar.simple(
-                configurations: QuillSimpleToolbarConfigurations(
+              child: QuillSimpleToolbar(
+                controller: _controller,
+                config: QuillSimpleToolbarConfig(
                   customButtons: [
                     QuillToolbarCustomButtonOptions(
                       icon: const HIcon(),
@@ -221,8 +225,7 @@ class NoteFormState extends State<NoteForm> {
                           });
                         })
                   ],
-                  controller: _controller,
-                  sharedConfigurations: const QuillSharedConfigurations(),
+                  // sharedConfigurations: const QuillSharedConfigurations(),
                   multiRowsDisplay: false,
                   showHeaderStyle: false,
                   showBackgroundColorButton: false,
@@ -282,14 +285,13 @@ class NoteFormState extends State<NoteForm> {
                       focusNode: _quillEditorFocusNode,
                       child: Builder(builder: (BuildContext context) {
                         return QuillEditor.basic(
-                          configurations: QuillEditorConfigurations(
+                          controller: _controller,
+                          config: const QuillEditorConfig(
                             autoFocus: true,
-                            controller: _controller,
                             disableClipboard: false,
-                            sharedConfigurations:
-                                const QuillSharedConfigurations(
-                              dialogBarrierColor: Colors.white,
-                            ),
+                            // sharedConfigurations: QuillSharedConfigurations(
+                            //   dialogBarrierColor: Colors.white,
+                            // ),
                           ),
                         );
                       }),

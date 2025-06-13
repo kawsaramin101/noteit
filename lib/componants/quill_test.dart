@@ -24,13 +24,17 @@ class _QuillTestState extends State<QuillTest> {
         //   ),
         // ),
         child: QuillEditor.basic(
-          configurations: QuillEditorConfigurations(
+          controller: _quillController,
+          config: const QuillEditorConfig(
             autoFocus: true,
-            controller: _quillController,
             disableClipboard: true,
-            sharedConfigurations: const QuillSharedConfigurations(
-              dialogBarrierColor: Colors.white,
+            dialogTheme: QuillDialogTheme(
+              dialogBackgroundColor: Colors.white,
             ),
+
+            // sharedConfig: QuillSharedConfigurations(
+
+            // ),
           ),
         ),
       ),
