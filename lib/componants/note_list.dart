@@ -24,11 +24,8 @@ class _NoteListState extends State<NoteList> {
 
   StreamSubscription<void>? notesSubscription;
 
-  // List<Note> notes = [];
   Iterable<Note> allNotes = Iterable<Note>.empty();
 
-  List<Note> pinnedNotes = [];
-  List<Note> unpinnedNotes = [];
   List<Note> searchedNotes = [];
 
   String _searchTerm = "";
@@ -38,8 +35,6 @@ class _NoteListState extends State<NoteList> {
   void initState() {
     super.initState();
     isar = Provider.of<Isar>(context, listen: false);
-    fetchNotes();
-    setupWatcher();
   }
 
   @override
@@ -58,25 +53,6 @@ class _NoteListState extends State<NoteList> {
     });
   }
 
-  void setupWatcher() {
-    notesStream = isar.notes.watchLazy();
-
-    notesSubscription = notesStream?.listen((_) {
-      fetchNotes();
-    });
-  }
-
-  void fetchNotes() async {
-    if (!watcherSuppressed) {
-      final fetchedNotes = await isar.notes.where().sortByOrderDesc().findAll();
-      setState(() {
-        // notes = fetchedNotes;
-        pinnedNotes = fetchedNotes.where((note) => note.pinned).toList();
-        unpinnedNotes = fetchedNotes.where((note) => !note.pinned).toList();
-      });
-    }
-  }
-
   void _deleteNote(Id id) {
     showDeleteConfirmationDialog(context, id);
   }
@@ -85,27 +61,60 @@ class _NoteListState extends State<NoteList> {
     if (searchTerm.isNotEmpty) {
       final queryParts = searchTerm.toLowerCase().split(' ');
 
-      List<Note> searchResults = [];
-      for (var note in allNotes) {
-        final latestEdit = await isar.edits
-            .where(sort: Sort.desc)
-            .filter()
-            .note((q) => q.idEqualTo(note.id))
-            .findFirst();
+      var query =
+          isar.edits.filter().contentWordsElementStartsWith(queryParts[0]);
+      for (var i = 1; i < queryParts.length; i++) {
+        query = query.or().contentWordsElementStartsWith(queryParts[i]);
+      }
+      final edits = await query.findAll();
 
-        if (latestEdit != null) {
-          final containsAllParts = queryParts.every((part) => latestEdit
-              .contentWords
-              .any((word) => word.toLowerCase().contains(part)));
-          if (containsAllParts) {
-            searchResults.add(note);
+      for (final edit in edits) {
+        await edit.note.load();
+        final note = edit.note.value;
+        if (note != null) {
+          if (!searchedNotes.any((n) => n.id == note.id)) {
+            searchedNotes.add(note);
           }
         }
       }
 
-      setState(() {
-        searchedNotes = searchResults;
-      });
+      // final edits = await isar.edits
+      //     .where()
+      //     .contentWordsElementStartsWith(searchTerm)
+      //     .findAll();
+
+      // for (final edit in edits) {
+      //   await edit.note.load();
+      //   final note = edit.note.value;
+      //   if (note != null) {
+      //     searchedNotes.add(note);
+      //   }
+      // }
+      setState(() {});
+
+      // final queryParts = searchTerm.toLowerCase().split(' ');
+
+      // List<Note> searchResults = [];
+      // for (var note in allNotes) {
+      //   final latestEdit = await isar.edits
+      //       .where(sort: Sort.desc)
+      //       .filter()
+      //       .note((q) => q.idEqualTo(note.id))
+      //       .findFirst();
+
+      //   if (latestEdit != null) {
+      //     final containsAllParts = queryParts.every((part) => latestEdit
+      //         .contentWords
+      //         .any((word) => word.toLowerCase().contains(part)));
+      //     if (containsAllParts) {
+      //       searchResults.add(note);
+      //     }
+      //   }
+      // }
+
+      // setState(() {
+      //   searchedNotes = searchResults;
+      // });
     } else {
       setState(() {
         searchedNotes = [];

@@ -10,8 +10,15 @@ class Edit {
   late DateTime createdAt;
   late String content;
 
-  @Index()
-  late List<String> contentWords;
+  @Index(type: IndexType.value, caseSensitive: false)
+  List<String> get contentWords => Isar.splitWords(content);
 
   final note = IsarLink<Note>();
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'createdAt': createdAt.toIso8601String(),
+      'content': content,
+    };
+  }
 }

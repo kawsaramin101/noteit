@@ -1,6 +1,5 @@
 import 'package:isar/isar.dart';
 import 'package:notes/data/edit_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'note_model.g.dart';
 
@@ -13,64 +12,13 @@ class Note {
 
   @Backlink(to: 'note')
   final edits = IsarLinks<Edit>();
-}
 
-Future<Note> createNote(
-    Isar isar, String contentInJson, String contentInPlainText, bool pinned,
-    {Note? parentNote}) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
-
-  int newOrder = lastOrder + 1;
-
-  final note = parentNote ?? Note()
-    ..order = newOrder
-    ..pinned = pinned;
-
-  final newEdit = Edit()
-    ..content = contentInJson
-    ..createdAt = DateTime.now()
-    ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'));
-
-  note.edits.add(newEdit);
-  newEdit.note.value = note;
-
-  await isar.writeTxn(() async {
-    await isar.notes.put(note);
-    await isar.edits.put(newEdit);
-    await note.edits.save();
-    await newEdit.note.save();
-  });
-
-  if (parentNote == null) {
-    await prefs.setInt('lastAddedNoteOrder', newOrder);
+  Map<String, dynamic> toJson(List<Edit> loadedEdits) {
+    return {
+      'id': id,
+      'pinned': pinned,
+      'order': order,
+      'edits': loadedEdits.map((e) => e.toJson()).toList(),
+    };
   }
-
-  return note;
-}
-
-Future<Edit> updateNote(Isar isar, Note note, String contentInJson,
-    String contentInPlainText, bool pinned) async {
-  final newEdit = Edit()
-    ..content = contentInJson
-    ..createdAt = DateTime.now()
-    ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'))
-    ..note.value = note;
-
-  note.edits.add(newEdit);
-
-  await isar.writeTxn(() async {
-    await isar.edits.put(newEdit);
-    await newEdit.note.save();
-    await note.edits.save();
-  });
-
-  return newEdit;
-}
-
-Future<void> changeNoteOrder(Isar isar, Note note, int newOrder) async {
-  note.order = newOrder;
-  await isar.writeTxn(() async {
-    await isar.notes.put(note);
-  });
 }

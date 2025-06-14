@@ -47,8 +47,8 @@ const EditSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'contentWords',
-          type: IndexType.hash,
-          caseSensitive: true,
+          type: IndexType.value,
+          caseSensitive: false,
         )
       ],
     )
@@ -104,7 +104,6 @@ Edit _editDeserialize(
 ) {
   final object = Edit();
   object.content = reader.readString(offsets[0]);
-  object.contentWords = reader.readStringList(offsets[1]) ?? [];
   object.createdAt = reader.readDateTime(offsets[2]);
   object.id = id;
   return object;
@@ -145,6 +144,14 @@ extension EditQueryWhereSort on QueryBuilder<Edit, Edit, QWhere> {
   QueryBuilder<Edit, Edit, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhere> anyContentWordsElement() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'contentWords'),
+      );
     });
   }
 }
@@ -215,30 +222,30 @@ extension EditQueryWhere on QueryBuilder<Edit, Edit, QWhereClause> {
     });
   }
 
-  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsEqualTo(
-      List<String> contentWords) {
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementEqualTo(
+      String contentWordsElement) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
         indexName: r'contentWords',
-        value: [contentWords],
+        value: [contentWordsElement],
       ));
     });
   }
 
-  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsNotEqualTo(
-      List<String> contentWords) {
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementNotEqualTo(
+      String contentWordsElement) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
               indexName: r'contentWords',
               lower: [],
-              upper: [contentWords],
+              upper: [contentWordsElement],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
               indexName: r'contentWords',
-              lower: [contentWords],
+              lower: [contentWordsElement],
               includeLower: false,
               upper: [],
             ));
@@ -246,15 +253,106 @@ extension EditQueryWhere on QueryBuilder<Edit, Edit, QWhereClause> {
         return query
             .addWhereClause(IndexWhereClause.between(
               indexName: r'contentWords',
-              lower: [contentWords],
+              lower: [contentWordsElement],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
               indexName: r'contentWords',
               lower: [],
-              upper: [contentWords],
+              upper: [contentWordsElement],
               includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementGreaterThan(
+    String contentWordsElement, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'contentWords',
+        lower: [contentWordsElement],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementLessThan(
+    String contentWordsElement, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'contentWords',
+        lower: [],
+        upper: [contentWordsElement],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementBetween(
+    String lowerContentWordsElement,
+    String upperContentWordsElement, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'contentWords',
+        lower: [lowerContentWordsElement],
+        includeLower: includeLower,
+        upper: [upperContentWordsElement],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementStartsWith(
+      String ContentWordsElementPrefix) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'contentWords',
+        lower: [ContentWordsElementPrefix],
+        upper: ['$ContentWordsElementPrefix\u{FFFFF}'],
+      ));
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'contentWords',
+        value: [''],
+      ));
+    });
+  }
+
+  QueryBuilder<Edit, Edit, QAfterWhereClause> contentWordsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'contentWords',
+              upper: [''],
+            ))
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'contentWords',
+              lower: [''],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'contentWords',
+              lower: [''],
+            ))
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'contentWords',
+              upper: [''],
             ));
       }
     });

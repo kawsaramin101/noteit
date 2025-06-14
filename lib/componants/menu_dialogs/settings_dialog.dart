@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:notes/notifiers/theme_notifiers.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:isar/isar.dart';
+import 'package:file_saver/file_saver.dart';
+import '../../data/note_model.dart';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({super.key});
@@ -21,6 +26,29 @@ class _SettingsDialogState extends State<SettingsDialog> {
       case ThemeModeOption.lightMode:
         return 'Light Mode';
     }
+  }
+
+  Future<void> exportNotesAsJson(Isar isar) async {
+    final notes = await isar.notes.where().findAll();
+
+    final List<Map<String, dynamic>> notesJson = [];
+
+    for (final note in notes) {
+      await note.edits.load();
+      final loadedEdits = note.edits.toList();
+      notesJson.add(note.toJson(loadedEdits));
+    }
+
+    final jsonString = jsonEncode(notesJson);
+    final Uint8List bytes = Uint8List.fromList(utf8.encode(jsonString));
+
+    final result = await FileSaver.instance.saveFile(
+      name: "notes_export",
+      bytes: bytes,
+      ext: "json",
+      mimeType: MimeType.json,
+    );
+    print(result);
   }
 
   @override
@@ -76,7 +104,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final isar = context.read<Isar>();
+                          await exportNotesAsJson(isar);
+                        },
                         icon: const Icon(Icons.download_rounded),
                         label: const Text("Download Data"),
                       ),

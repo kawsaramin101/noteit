@@ -21,6 +21,7 @@ dependencies:
     yaru: ^8.0.0
     flutter_localizations:
         sdk: flutter
+    file_saver: ^0.2.14
 
 dev_dependencies:
     flutter_test:

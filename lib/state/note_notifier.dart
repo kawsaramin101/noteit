@@ -45,8 +45,7 @@ class NoteProvider extends ChangeNotifier {
 
     final newEdit = Edit()
       ..content = contentInJson
-      ..createdAt = DateTime.now()
-      ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'));
+      ..createdAt = DateTime.now();
 
     note.edits.add(newEdit);
     newEdit.note.value = note;
@@ -95,7 +94,6 @@ class NoteProvider extends ChangeNotifier {
     final newEdit = Edit()
       ..content = contentInJson
       ..createdAt = DateTime.now()
-      ..contentWords = contentInPlainText.split(RegExp(r'[\s\n]+'))
       ..note.value = note;
 
     note.edits.add(newEdit);
