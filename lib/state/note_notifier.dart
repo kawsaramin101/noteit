@@ -33,7 +33,7 @@ class NoteProvider extends ChangeNotifier {
 
   Future<Note> createNote(
       String contentInJson, String contentInPlainText, bool pinned,
-      {Note? parentNote}) async {
+      {Note? parentNote, DateTime? time}) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
 
@@ -45,7 +45,7 @@ class NoteProvider extends ChangeNotifier {
 
     final newEdit = Edit()
       ..content = contentInJson
-      ..createdAt = DateTime.now();
+      ..createdAt = time ?? DateTime.now();
 
     note.edits.add(newEdit);
     newEdit.note.value = note;

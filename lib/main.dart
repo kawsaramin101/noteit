@@ -14,26 +14,37 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   await YaruWindowTitleBar.ensureInitialized();
+
+  String dbName = "note_it_isar_db";
+
+  if (kReleaseMode) {
+    dbName = "note_it_isar_db";
+  } else if (kDebugMode) {
+    dbName = "note_it_kDebugMode_db";
+  } else if (kProfileMode) {
+    dbName = "note_it_kProfileMode_db";
+  }
 
   final dir = await getApplicationDocumentsDirectory();
   final isar = await Isar.open(
     [NoteSchema, EditSchema],
     directory: dir.path,
-    name: "note_it_isar_db",
+    name: dbName,
   );
 
   // await clearDatabase(isar);
 
   // TODO: add settings page
   //       -light mode/dark mode/system
-  //       -title field
-  //       -pinned notes?
+  //       -pinned notes? (DONE)
   // TODO: app crashes on quill paste - doesn't crash on release build
-  // TODO: download and upload data
+  // TODO: download and upload data - show confirmation
   // TODO: select note
+  // TODOne: fix keyboard shortcut conflicting when click ctrl+a in search field
   // Colored note?
   // Labeled note?
 

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:notes/componants/utils/floatingtext.dart';
+import 'package:notes/data/edit_model.dart';
 import 'package:notes/notifiers/theme_notifiers.dart';
+import 'package:notes/state/note_notifier.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:isar/isar.dart';
 import 'package:file_saver/file_saver.dart';
 import '../../data/note_model.dart';
+import 'dart:io';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({super.key});
@@ -51,9 +55,134 @@ class _SettingsDialogState extends State<SettingsDialog> {
     print(result);
   }
 
+  void showImportNoteDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => JsonPathDialog(
+        isImporting: true,
+      ),
+    ).then((importedPath) {
+      if (importedPath != null) {
+        importNotesFromJsonFile(importedPath);
+        print('Importing from: $importedPath');
+        // Handle import logic here
+      }
+    });
+  }
+
+  Future<void> importNotesFromJsonFile(String filePath) async {
+    final isar = Provider.of<Isar>(context, listen: false);
+
+    try {
+      final file = File(filePath);
+
+      if (!await file.exists()) {
+        if (mounted) {
+          showFloatingText(context, 'File does not exist at path: $filePath');
+        }
+
+        return;
+      }
+
+      final jsonString = await file.readAsString();
+      final List<dynamic> jsonData = jsonDecode(jsonString);
+
+      int importedCount = 0;
+
+      await isar.writeTxn(() async {
+        for (var noteJson in jsonData) {
+          final note = Note()
+            ..id = Isar.autoIncrement
+            ..pinned = noteJson['pinned'] ?? false
+            ..order = noteJson['order'] ?? 0;
+
+          await isar.notes.put(note);
+
+          final editsJson = noteJson['edits'] as List<dynamic>? ?? [];
+          for (var editJson in editsJson) {
+            final edit = Edit()
+              ..createdAt = DateTime.parse(editJson['createdAt'])
+              ..content = editJson['content']
+              ..note.value = note;
+
+            await isar.edits.put(edit);
+            note.edits.add(edit);
+          }
+
+          await note.edits.save();
+          importedCount++;
+        }
+      });
+
+      if (mounted) {
+        showFloatingText(
+            context, 'Import complete. Imported $importedCount new notes.');
+      }
+
+      if (mounted) {
+        await context.read<NoteProvider>().loadNotes();
+      }
+    } catch (e) {
+      if (mounted) {
+        showFloatingText(context, 'Failed to import notes: $e');
+      }
+    }
+  }
+
+  void showDeleteAllDataDialog(BuildContext context, VoidCallback onConfirm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: const Text(
+              "Are you sure you want to delete all app data? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                clearDatabase();
+              },
+              child: const Text("Delete All"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> clearDatabase() async {
+    final isar = Provider.of<Isar>(context, listen: false);
+
+    await isar.writeTxn(() async {
+      await isar.notes.clear();
+      await isar.edits.clear();
+    });
+
+    if (mounted) {
+      await context.read<NoteProvider>().loadNotes();
+    }
+
+    if (mounted) {
+      showFloatingText(context, 'Deleted all data.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
+    final isar = context.read<Isar>();
+
     return AlertDialog(
       backgroundColor: Colors.grey[900],
       shape: const RoundedRectangleBorder(
@@ -105,7 +234,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () async {
-                          final isar = context.read<Isar>();
                           await exportNotesAsJson(isar);
                         },
                         icon: const Icon(Icons.download_rounded),
@@ -113,7 +241,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                       const SizedBox(width: 10.0),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          showImportNoteDialog();
+                        },
                         icon: const Icon(Icons.upload_rounded),
                         label: const Text("Upload Data"),
                       ),
@@ -123,7 +253,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     height: 8.0,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showDeleteAllDataDialog(context, () {});
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
@@ -170,6 +302,110 @@ class _SettingsDialogState extends State<SettingsDialog> {
             'Close',
             style: TextStyle(color: Colors.white),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class JsonPathDialog extends StatefulWidget {
+  final bool isImporting;
+  final void Function(String path)? onExport;
+
+  const JsonPathDialog({
+    super.key,
+    required this.isImporting,
+    this.onExport,
+  });
+
+  @override
+  State<JsonPathDialog> createState() => _JsonPathDialogState();
+}
+
+class _JsonPathDialogState extends State<JsonPathDialog> {
+  final TextEditingController _jsonPathController = TextEditingController();
+  String? _errorText;
+  bool _isProcessing = false;
+
+  Future<void> _handleSubmit() async {
+    final path = _jsonPathController.text.trim();
+
+    setState(() {
+      _errorText = null;
+      _isProcessing = true;
+    });
+
+    if (path.isEmpty) {
+      setState(() {
+        _errorText = 'Please enter a path';
+        _isProcessing = false;
+      });
+      return;
+    }
+
+    if (!path.endsWith('.json')) {
+      setState(() {
+        _errorText = 'File must be a JSON file';
+        _isProcessing = false;
+      });
+      return;
+    }
+
+    final file = File(path);
+
+    if (widget.isImporting) {
+      final exists = await file.exists();
+      if (!exists) {
+        setState(() {
+          _errorText = 'File does not exist';
+          _isProcessing = false;
+        });
+        return;
+      }
+      if (mounted) {
+        Navigator.of(context).pop(path); // valid import path
+      }
+    } else {
+      if (!await file.exists()) {
+        await file.create(recursive: true);
+      }
+      widget.onExport?.call(path); // handle export
+      if (mounted) {
+        Navigator.of(context).pop(); // done
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.isImporting ? 'Import JSON File' : 'Export JSON File'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _jsonPathController,
+            decoration: InputDecoration(
+              labelText: 'Path to JSON file',
+              border: OutlineInputBorder(),
+              errorText: _errorText,
+            ),
+          ),
+          if (_isProcessing)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _isProcessing ? null : _handleSubmit,
+          child: Text('OK'),
         ),
       ],
     );

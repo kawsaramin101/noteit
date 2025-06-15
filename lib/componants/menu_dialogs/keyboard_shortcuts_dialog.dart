@@ -27,7 +27,7 @@ class _KeyboardShortcutsDialogState extends State<KeyboardShortcutsDialog> {
           child: const Column(
             children: [
               Text("Press ctrl+s to save a note."),
-              Text("Press ctrl+a to open a new note form."),
+              Text("Press ctrl+n to open a new note form."),
               Text("Press ctrl+f to search."),
             ],
           ),

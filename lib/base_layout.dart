@@ -97,7 +97,7 @@ class _BaseLayoutState extends State<BaseLayout> {
       },
       child: Shortcuts(
         shortcuts: <LogicalKeySet, Intent>{
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyA):
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyN):
               const OpenNoteFormIntent(),
           LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF):
               const FocusOrUnfocusSearchFieldIntent(),
