@@ -251,7 +251,7 @@ class NoteFormState extends State<NoteForm> {
                   showRightAlignment: false,
                   showQuote: false,
                   showUnderLineButton: false,
-                  showItalicButton: false,
+                  // showItalicButton: false,
                 ),
               ),
             ),

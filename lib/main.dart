@@ -36,15 +36,14 @@ void main() async {
     name: dbName,
   );
 
-  // await clearDatabase(isar);
-
+  // TODO: Add xdg_directories package to get right path for the db
   // TODO: add settings page
   //       -light mode/dark mode/system
   //       -pinned notes? (DONE)
-  // TODO: app crashes on quill paste - doesn't crash on release build
-  // TODO: download and upload data - show confirmation
+  // TODone: app crashes on quill paste - doesn't crash on release build
+  // TODone: download and upload data - show confirmation
   // TODO: select note
-  // TODOne: fix keyboard shortcut conflicting when click ctrl+a in search field
+  // TODone: fix keyboard shortcut conflicting when click ctrl+a in search field
   // Colored note?
   // Labeled note?
 
@@ -143,11 +142,4 @@ ThemeData _buildTheme(ThemeData base, Brightness brightness) {
           fontFamily: fontFamily,
         ),
   );
-}
-
-Future<void> clearDatabase(Isar isar) async {
-  await isar.writeTxn(() async {
-    await isar.notes.clear();
-    await isar.edits.clear();
-  });
 }
