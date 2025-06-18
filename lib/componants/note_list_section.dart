@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes/componants/note_card.dart';
-import 'package:notes/data/note_model.dart';
+import '../componants/note_card.dart';
+import '../data/note_model.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class NoteListSection extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import 'package:notes/data/note_model.dart';
+import '../data/note_model.dart';
 
 part 'edit_model.g.dart';
 

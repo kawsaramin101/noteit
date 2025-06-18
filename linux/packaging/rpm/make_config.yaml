@@ -1,0 +1,25 @@
+display_name: NoteIt
+icon: linux/assests/writing.png
+summary: Simple note taking app
+group: Utility
+vendor: MD Kawsar amin
+packager: MD Kawsar amin
+packagerEmail: kawsar101amin@gmail.com
+license: GPLv3
+url: https://github.com/kawsaramin101/noteit
+build_arch: x86_64
+
+
+
+keywords:
+  - Note 
+
+generic_name: Note app
+
+categories:
+  - Utility
+
+startup_notify: true
+
+install_path: /usr/share/noteit
+binary_path: build/linux/x64/release/bundle

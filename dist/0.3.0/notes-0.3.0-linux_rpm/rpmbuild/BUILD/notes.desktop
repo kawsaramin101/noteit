@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=0.3.0
+Name=NoteIt
+GenericName=Note app
+Icon=notes
+Exec=notes %U
+Categories=Utility;
+Keywords=Note;
+StartupNotify=true

@@ -1,4 +1,4 @@
-name: notes
+name: noteit
 description: "A new Flutter project."
 publish_to: "none"
 version: 0.3.0
@@ -21,6 +21,7 @@ dependencies:
     flutter_localizations:
         sdk: flutter
     file_saver: ^0.2.14
+   
 
 dev_dependencies:
     flutter_test:

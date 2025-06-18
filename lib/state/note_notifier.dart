@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import 'package:notes/data/edit_model.dart';
+import '../data/edit_model.dart';
 import '../data/note_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:notes/componants/menu_dialogs/menu.dart';
-import 'package:notes/notifiers/search_notifiers.dart';
-import 'package:notes/routes/home.dart';
-import 'package:notes/componants/note_form.dart';
+import './componants/menu_dialogs/menu.dart';
+import './notifiers/search_notifiers.dart';
+import './routes/home.dart';
+import './componants/note_form.dart';
 import 'package:provider/provider.dart';
 import 'package:yaru/yaru.dart';
 

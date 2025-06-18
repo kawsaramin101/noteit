@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
-import 'package:notes/data/edit_model.dart';
-import 'package:notes/data/note_model.dart';
-import 'package:notes/state/note_notifier.dart';
+import '../data/edit_model.dart';
+import '../data/note_model.dart';
+import '../state/note_notifier.dart';
 import 'package:provider/provider.dart';
 
 class NoteForm extends StatefulWidget {

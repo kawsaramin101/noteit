@@ -20,7 +20,7 @@
 
 ## Installation
 
-### Option 1:  Download the pre-made [binaries](https://github.com/kawsaramin101/notes/releases/)
+### Option 1:  Download the pre-made [binaries](https://github.com/kawsaramin101/noteit/releases/)
 
 ### Option 2: Build it yourself
 
@@ -36,7 +36,7 @@
 #### Clone the Repository
 
 ```bash
-git clone https://github.com/kawsaramin101/notes.git
+git clone https://github.com/kawsaramin101/noteit.git
 cd notes
 ```
 ##### Run in debug mode 

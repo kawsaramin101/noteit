@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes/componants/menu_dialogs/keyboard_shortcuts_dialog.dart';
-import 'package:notes/componants/menu_dialogs/settings_dialog.dart';
+import '../../componants/menu_dialogs/keyboard_shortcuts_dialog.dart';
+import '../../componants/menu_dialogs/settings_dialog.dart';
 import 'package:yaru/yaru.dart';
 
 class Menu extends StatefulWidget {

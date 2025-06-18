@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:notes/notifiers/search_notifiers.dart';
-import 'package:notes/notifiers/theme_notifiers.dart';
-import 'package:notes/state/note_notifier.dart';
+import './notifiers/search_notifiers.dart';
+import './notifiers/theme_notifiers.dart';
+import './state/note_notifier.dart';
 
 import 'package:yaru/yaru.dart';
 
 import 'package:isar/isar.dart';
-import 'package:notes/base_layout.dart';
-import 'package:notes/data/edit_model.dart';
-import 'package:notes/data/note_model.dart';
+import './base_layout.dart';
+import './data/edit_model.dart';
+import './data/note_model.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:io';
 
 void main() async {
   await YaruWindowTitleBar.ensureInitialized();
@@ -29,14 +30,15 @@ void main() async {
     dbName = "note_it_kProfileMode_db";
   }
 
-  final dir = await getApplicationDocumentsDirectory();
+  final Directory appDir = await getApplicationSupportDirectory();
+
   final isar = await Isar.open(
     [NoteSchema, EditSchema],
-    directory: dir.path,
+    directory: appDir.path,
     name: dbName,
   );
 
-  // TODO: Add xdg_directories package to get right path for the db
+  // TODone: Add xdg_directories package to get right path for the db (used getApplicationSupportDirectory from path_provider)
   // TODO: add settings page
   //       -light mode/dark mode/system
   //       -pinned notes? (DONE)

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:notes/componants/utils/floatingtext.dart';
-import 'package:notes/data/edit_model.dart';
-import 'package:notes/notifiers/theme_notifiers.dart';
-import 'package:notes/state/note_notifier.dart';
+import '../../componants/utils/floatingtext.dart';
+import '../../data/edit_model.dart';
+import '../../notifiers/theme_notifiers.dart';
+import '../../state/note_notifier.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:typed_data';

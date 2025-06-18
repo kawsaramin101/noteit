@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
-import 'package:notes/componants/note_list_section.dart';
-import 'package:notes/data/edit_model.dart';
+import '../componants/note_list_section.dart';
+import '../data/edit_model.dart';
 
-import 'package:notes/data/note_model.dart';
-import 'package:notes/notifiers/search_notifiers.dart';
-import 'package:notes/state/note_notifier.dart';
+import '../data/note_model.dart';
+import '../notifiers/search_notifiers.dart';
+import '../state/note_notifier.dart';
 import 'package:provider/provider.dart';
 
 class NoteList extends StatefulWidget {
