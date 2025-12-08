@@ -20,7 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.3'
-          cache: true  # This already caches Flutter SDK
+          cache: true
       
       - name: Cache pub dependencies
         uses: actions/cache@v4
@@ -55,19 +55,24 @@ jobs:
       - name: Activate flutter_distributor
         run: dart pub global activate flutter_distributor
       
-      - name: Build release
-        run: flutter_distributor release --name=dev --jobs=release-dev-linux-deb
-      
       - name: Read version
         id: version
         run: |
           echo "version=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/+.*//')" >> $GITHUB_OUTPUT
+      
+      - name: Clean dist directory
+        run: rm -rf dist/*
+      
+      - name: Build release
+        run: flutter_distributor release --name=dev --jobs=release-dev-linux-deb
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release v${{ steps.version.outputs.version }}
-          files: dist/**/*
+          files: dist/**/*.deb
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
