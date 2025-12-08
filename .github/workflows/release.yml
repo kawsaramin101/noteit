@@ -1,0 +1,43 @@
+name: Build and Release Flutter App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ">=3.4.1 <4.0.0" 
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Activate flutter_distributor
+        run: dart pub global activate flutter_distributor
+
+      - name: Build release
+        run: flutter_distributor release --name=dev --jobs=release-dev-linux-deb
+
+      - name: Read version
+        id: version
+        run: |
+          echo "version=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/+.*//')" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: dist/**/* 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
