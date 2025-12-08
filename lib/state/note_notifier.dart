@@ -16,17 +16,11 @@ class NoteProvider extends ChangeNotifier {
   List<Note> get unpinnedNotes => _unpinnedNotes;
 
   Future<void> loadNotes() async {
-    _pinnedNotes = await _isar.notes
-        .filter()
-        .pinnedEqualTo(true)
-        .sortByOrderDesc()
-        .findAll();
+    _pinnedNotes =
+        await _isar.notes.filter().pinnedEqualTo(true).sortByOrder().findAll();
 
-    _unpinnedNotes = await _isar.notes
-        .filter()
-        .pinnedEqualTo(false)
-        .sortByOrderDesc()
-        .findAll();
+    _unpinnedNotes =
+        await _isar.notes.filter().pinnedEqualTo(false).sortByOrder().findAll();
 
     notifyListeners();
   }

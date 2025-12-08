@@ -30,6 +30,8 @@ void main() async {
     dbName = "note_it_kProfileMode_db";
   }
 
+  print(dbName);
+
   final Directory appDir = await getApplicationSupportDirectory();
 
   final isar = await Isar.open(
@@ -48,6 +50,8 @@ void main() async {
   // TODone: fix keyboard shortcut conflicting when click ctrl+a in search field
   // Colored note?
   // Labeled note?
+  // TODO: Fix reordering issue
+  // TODO: fix pinning issue
 
   runApp(MainWidget(
     isar: isar,
