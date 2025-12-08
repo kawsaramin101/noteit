@@ -18,12 +18,19 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.3'
+      
 
       - name: Get dependencies
         run: flutter pub get
 
       - name: Activate flutter_distributor
         run: dart pub global activate flutter_distributor
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config libgtk-3-dev libstdc++-12-dev curl git unzip xz-utils zip libglu1-mesa
 
       - name: Build release
         run: flutter_distributor release --name=dev --jobs=release-dev-linux-deb
