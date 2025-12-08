@@ -16,11 +16,17 @@ class NoteProvider extends ChangeNotifier {
   List<Note> get unpinnedNotes => _unpinnedNotes;
 
   Future<void> loadNotes() async {
-    _pinnedNotes =
-        await _isar.notes.filter().pinnedEqualTo(true).sortByOrder().findAll();
+    _pinnedNotes = await _isar.notes
+        .filter()
+        .pinnedEqualTo(true)
+        .sortByOrderDesc()
+        .findAll();
 
-    _unpinnedNotes =
-        await _isar.notes.filter().pinnedEqualTo(false).sortByOrder().findAll();
+    _unpinnedNotes = await _isar.notes
+        .filter()
+        .pinnedEqualTo(false)
+        .sortByOrderDesc()
+        .findAll();
 
     notifyListeners();
   }
@@ -28,14 +34,17 @@ class NoteProvider extends ChangeNotifier {
   Future<Note> createNote(
       String contentInJson, String contentInPlainText, bool pinned,
       {Note? parentNote, DateTime? time}) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    int lastOrder = prefs.getInt('lastAddedNoteOrder') ?? 0;
-
-    int newOrder = lastOrder + 1;
-
     final note = parentNote ?? Note()
-      ..order = newOrder
       ..pinned = pinned;
+
+    // Get the highest order from the appropriate list
+    if (parentNote == null) {
+      final targetList = pinned ? _pinnedNotes : _unpinnedNotes;
+      final maxOrder = targetList.isEmpty
+          ? 0
+          : targetList.map((n) => n.order).reduce((a, b) => a > b ? a : b);
+      note.order = maxOrder + 1;
+    }
 
     final newEdit = Edit()
       ..content = contentInJson
@@ -51,10 +60,7 @@ class NoteProvider extends ChangeNotifier {
       await newEdit.note.save();
     });
 
-    if (parentNote == null) {
-      await prefs.setInt('lastAddedNoteOrder', newOrder);
-    }
-
+    // Insert at the beginning (highest order)
     if (note.pinned) {
       _pinnedNotes.insert(0, note);
     } else {
@@ -62,7 +68,6 @@ class NoteProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-
     return note;
   }
 
@@ -136,6 +141,7 @@ class NoteProvider extends ChangeNotifier {
       _pinnedNotes.removeWhere((n) => n.id == note.id);
       _unpinnedNotes.insert(0, note);
     }
+    notifyListeners();
   }
 
   Future<void> reOrderNote(bool isPinned, int newIndex, int oldIndex) async {
@@ -173,5 +179,7 @@ class NoteProvider extends ChangeNotifier {
     await _isar.writeTxn(() async {
       await _isar.notes.putAll(noteList);
     });
+
+    notifyListeners();
   }
 }
