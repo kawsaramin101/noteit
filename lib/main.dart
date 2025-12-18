@@ -3,8 +3,6 @@ import './notifiers/search_notifiers.dart';
 import './notifiers/theme_notifiers.dart';
 import './state/note_notifier.dart';
 
-import 'package:yaru/yaru.dart';
-
 import 'package:isar/isar.dart';
 import './base_layout.dart';
 import './data/edit_model.dart';
@@ -16,9 +14,10 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() async {
-  await YaruWindowTitleBar.ensureInitialized();
+  // await YaruWindowTitleBar.ensureInitialized();
 
   String dbName = "note_it_isar_db";
 
@@ -53,9 +52,23 @@ void main() async {
   // TODO: Fix reordering issue
   // TODO: fix pinning issue
 
-  runApp(MainWidget(
-    isar: isar,
-  ));
+  runApp(
+    WindowBorder(
+      color: const Color(0xFF2b2c2d),
+      width: 1,
+      child: MainWidget(
+        isar: isar,
+      ),
+    ),
+  );
+
+  doWhenWindowReady(() {
+    const initialSize = Size(900, 600);
+    // appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    // appWindow.alignment = Alignment.center;
+    appWindow.show();
+  });
 }
 
 class MainWidget extends StatelessWidget {
@@ -77,47 +90,40 @@ class MainWidget extends StatelessWidget {
           create: (context) {
             final isar = context.read<Isar>();
             final provider = NoteProvider(isar);
-            provider.loadNotes(); // Load initial notes
+            provider.loadNotes();
             return provider;
           },
         ),
       ],
       child: Consumer<ThemeNotifier>(
-        builder: (context, themeNotifier, child) {
-          return YaruTheme(
-            data: const YaruThemeData(
-              themeMode: ThemeMode.dark,
-              useMaterial3: true,
+        builder: (context, themeNotifier, _) {
+          return MaterialApp(
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              quill.FlutterQuillLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+            ],
+            home: const BaseLayout(),
+            theme: _buildTheme(
+              ThemeData.light(useMaterial3: true),
+              Brightness.light,
             ),
-            builder: (context, yaru, child) {
-              final ThemeData lightTheme = yaru.theme ?? ThemeData.light();
-              final ThemeData darkTheme = yaru.darkTheme ?? ThemeData.dark();
-
-              return MaterialApp(
-                localizationsDelegates: [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                  quill.FlutterQuillLocalizations
-                      .delegate, // <-- This is the required line
-                ],
-                supportedLocales: const [
-                  Locale('en'), // Or any locales your app supports
-                  // Add more locales if you need
-                ],
-                home: const BaseLayout(),
-                theme: _buildTheme(lightTheme, Brightness.light),
-                darkTheme: _buildTheme(darkTheme, Brightness.dark),
-                themeMode: _getThemeMode(themeNotifier),
-                debugShowCheckedModeBanner: false,
-                builder: (context, child) {
-                  return MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                      textScaler: const TextScaler.linear(0.9),
-                    ),
-                    child: child!,
-                  );
-                },
+            darkTheme: _buildTheme(
+              ThemeData.dark(useMaterial3: true),
+              Brightness.dark,
+            ),
+            themeMode: _getThemeMode(themeNotifier),
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(0.9),
+                ),
+                child: child!,
               );
             },
           );

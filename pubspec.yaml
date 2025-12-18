@@ -1,7 +1,7 @@
 name: noteit
 description: "Simple note app"
 publish_to: "none"
-version: 0.7.0
+version: 0.8.0
 
 environment:
     sdk: ">=3.4.1 <4.0.0"
@@ -21,6 +21,7 @@ dependencies:
     flutter_localizations:
         sdk: flutter
     file_saver: ^0.2.14
+    bitsdojo_window: ^0.1.6
    
 
 dev_dependencies:

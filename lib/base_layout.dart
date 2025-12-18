@@ -8,7 +8,7 @@ import './notifiers/search_notifiers.dart';
 import './routes/home.dart';
 import './componants/note_form.dart';
 import 'package:provider/provider.dart';
-import 'package:yaru/yaru.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
@@ -110,50 +110,105 @@ class _BaseLayoutState extends State<BaseLayout> {
             final isDarkMode = theme.brightness == Brightness.dark;
 
             return Scaffold(
-              appBar: YaruWindowTitleBar(
-                titleSpacing: 0.0,
-                backgroundColor: isDarkMode
-                    ? const Color(0xFF28292A)
-                    : const Color(0xFFF0F0F0),
-                leading: const Menu(),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              backgroundColor: isDarkMode
+                  ? const Color(0xFF18191a)
+                  : const Color(0xFFF7F7F7),
+              body: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 0.5),
+                ),
+                child: Column(
                   children: [
-                    YaruIconButton(
-                      icon: const Icon(YaruIcons.plus),
-                      onPressed: showNoteForm,
-                      tooltip: "Create note",
-                    ),
                     SizedBox(
-                      width: 350,
-                      height: 34.0,
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        onChanged: onSearchChanged,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          hintText: 'Search',
-                          prefixIcon: Icon(
-                            YaruIcons.search,
+                      height: 48, // Set height here
+                      child: WindowTitleBarBox(
+                        child: Container(
+                          color: isDarkMode
+                              ? const Color(0xFF28292A)
+                              : const Color(0xFFF0F0F0),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Menu(),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.add, size: 20),
+                                      onPressed: showNoteForm,
+                                      tooltip: "Create note",
+                                      padding: const EdgeInsets.all(8),
+                                      constraints: const BoxConstraints(),
+                                      iconSize: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: MoveWindow(
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 450,
+                                      height: 36.0,
+                                      child: TextField(
+                                        controller: _searchController,
+                                        focusNode: _searchFocusNode,
+                                        onChanged: onSearchChanged,
+                                        style: const TextStyle(fontSize: 14),
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: isDarkMode
+                                              ? const Color(0xFF3A3B3C)
+                                              : const Color(0xFFFFFFFF),
+                                          hintText: 'Search',
+                                          hintStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: isDarkMode
+                                                ? Colors.grey[500]
+                                                : Colors.grey[600],
+                                          ),
+                                          prefixIcon: Icon(
+                                            Icons.search,
+                                            size: 20,
+                                            color: isDarkMode
+                                                ? Colors.grey[500]
+                                                : Colors.grey[600],
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                            horizontal: 12.0,
+                                            vertical: 10.0,
+                                          ),
+                                          isDense: true,
+                                        ),
+                                        textAlignVertical:
+                                            TextAlignVertical.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Window buttons (non-draggable)
+                              WindowButtons(),
+                            ],
                           ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding:
-                              EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
                         ),
-                        textAlignVertical: TextAlignVertical.center,
                       ),
                     ),
-                    const SizedBox(
-                      width: 8.0,
+                    const Expanded(
+                      child: Home(),
                     ),
                   ],
                 ),
               ),
-              backgroundColor: const Color(0xFF18191a),
-              body: const Home(),
             );
           }),
         ),
@@ -168,4 +223,54 @@ class OpenNoteFormIntent extends Intent {
 
 class FocusOrUnfocusSearchFieldIntent extends Intent {
   const FocusOrUnfocusSearchFieldIntent();
+}
+
+class WindowButtons extends StatefulWidget {
+  const WindowButtons({super.key});
+
+  @override
+  State<WindowButtons> createState() => _WindowButtonsState();
+}
+
+class _WindowButtonsState extends State<WindowButtons> {
+  void maximizeOrRestore() {
+    setState(() {
+      appWindow.maximizeOrRestore();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDarkMode ? Colors.white : Colors.black87;
+
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.remove, size: 15),
+          color: iconColor,
+          hoverColor: isDarkMode ? Colors.grey[800] : Colors.grey[300],
+          // splashRadius: 14,
+          onPressed: () => appWindow.minimize(),
+        ),
+        IconButton(
+          icon: Icon(
+            appWindow.isMaximized ? Icons.fullscreen_exit : Icons.crop_square,
+            size: 15,
+          ),
+          color: iconColor,
+          hoverColor: isDarkMode ? Colors.grey[800] : Colors.grey[300],
+          // splashRadius: 14,
+          onPressed: maximizeOrRestore,
+        ),
+        IconButton(
+          icon: const Icon(Icons.close, size: 15),
+          color: iconColor,
+          hoverColor: const Color(0xFFD32F2F),
+          // splashRadius: 14,
+          onPressed: () => appWindow.close(),
+        ),
+      ],
+    );
+  }
 }

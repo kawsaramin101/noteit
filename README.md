@@ -1,6 +1,6 @@
 # NoteIt
 
-## Simple note taking app for linux
+## Simple note taking app for desktop
 
 ### Features
 
@@ -20,7 +20,7 @@
 
 ## Installation
 
-### Option 1:  Download the pre-made [binaries](https://github.com/kawsaramin101/noteit/releases/)
+### Option 1:  Download the pre-made [binaries](https://github.com/kawsaramin101/noteit/releases/) (only available for Linux)
 
 ### Option 2: Build it yourself
 
@@ -42,14 +42,26 @@ cd notes
 ##### Run in debug mode 
 ```
 flutter pub get
+
+# Linux
 flutter run -d linux
+# macOS
+flutter run -d macos
+# Windows
+flutter run -d windows
 ```
 ##### Build in release mode
 ```
 flutter pub get
+
+# Linux
 flutter build linux --release
+# macOS
+flutter build macos --release
+# Windows
+flutter build windows --release
 ```
-##### Build .deb package (recommended if you want to install)
+##### Build .deb package (recommended if you are on Debian based distro and want to install)
 ```
 flutter pub get
 dart pub global activate flutter_distributor
