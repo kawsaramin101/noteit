@@ -307,8 +307,17 @@ class NoteFormState extends State<NoteForm> {
       actions: <Widget>[
         ElevatedButton(
           onPressed: _createOrUpdateNote,
+          style: TextButton.styleFrom(
+            backgroundColor: Color(0xFF0073E5),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+          ),
           child: const Text(
             "Save",
+            style: TextStyle(color: Colors.white),
           ),
         ),
         ElevatedButton(
